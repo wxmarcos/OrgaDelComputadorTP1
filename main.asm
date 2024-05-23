@@ -1,74 +1,56 @@
-global	main
-extern	puts
-extern	fopen
-extern	fgets
-extern	fclose
+global main
+extern printf, printMapa, gets
+
+%macro mPrintf 0 
+    sub     rsp,8
+    call    printf
+    add     rsp,8
+%endmacro
+
+%macro mGets 0 
+    sub     rsp,8
+    call    gets
+    add     rsp,8
+%endmacro
 
 
-section		.data  
-    fileTablero     db "mapa.txt",0
-    modo            db  "r+"
-    error           db "Error de archivo",0
+section .data
+    msjSalir        db "Partida cancelada",0
+    msjFin          db 10,"Finalizo la partida: %s",10,0
+    msjMovimiento   db 10,"Ingresar w (arriba), a (izquierdo), s (abajo), d (derecha) o x (para salir)",10,0
+    newline         db 10, 0 
 
-section		.bss
-    idTablero       resq 1
-    registro        resb 81
 
-section		.text
+section .bss
+    proxMov         resq 2
 
+section .text
 main:
+    sub rsp, 8
+    call printMapa
+    add rsp, 8
 
-	sub		rsp,8
-	call	manejoArchivoTablero
-	add		rsp,8  
-
-    ;Imprimir mapa
-    mov     rdi,registro
-    sub		rsp,8
-	call	puts
-	add		rsp,8
+    ; Añadir una nueva linea al final
+    mov rdi, newline
+    mPrintf
     
-
-    ret
-
-manejoArchivoTablero:
-    ;Apertura de archivo
-    mov     rdi,fileTablero
-    mov     rsi,modo
-
-	sub		rsp,8
-	call	fopen
-	add		rsp,8
-
-    cmp     rax,0
-    jle     errorArchivo
-    mov     qword[idTablero],rax
-
-    ;Lectura de archivo
-    mov     rdi,registro
-    mov     rsi,80
-    mov     rdx,[idTablero]
-
-	sub		rsp,8
-	call	fgets
-	add		rsp,8
-
-    cmp     rax,0
-    jle     errorArchivo
+    mov rdi, msjMovimiento
+    mPrintf
     
-    ;Cierre de archivo
-    mov     rdi,[idTablero]
-    sub		rsp,8
-	call	fclose
-	add		rsp,8        
+    ; Valido salida del programa
+    mov rdi, proxMov
+    mGets
+
+    mov rdi, [proxMov]
+    cmp rdi, 'x'
+    mov rsi, msjSalir
+    je  finPrograma
+
+    jmp main
+
+finPrograma:
+    mov rdi, msjFin
+    mPrintf
 
     ret
 
-errorArchivo:
-    mov     rdi,error
-
-    sub		rsp,8
-	call	puts
-	add		rsp,8
-
-    ret

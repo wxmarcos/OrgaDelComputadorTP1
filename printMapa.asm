@@ -23,7 +23,7 @@ section .bss
 section .text
 printMapa:
     ; Apertura de archivo
-    mov rdi, fileTablero
+    ; mov rdi, fileTablero
     mov rsi, modo
 
     sub rsp, 8

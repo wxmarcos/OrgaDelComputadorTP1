@@ -1,4 +1,4 @@
-global printMapa
+global main
 extern printf, fopen, fgets, fclose, puts
 
 %macro mPrintf 0 
@@ -9,7 +9,7 @@ extern printf, fopen, fgets, fclose, puts
 
 
 section .data
-    ;fileTablero     db "mapa.txt", 0
+    fileTablero     db "mapa3.txt", 0
     modo            db "r", 0
     error           db "Error de archivo", 0
     formato         db "%s", 0
@@ -24,10 +24,10 @@ section .bss
 
 
 section .text
-printMapa:
+main:
 
     ; Apertura de archivo
-    ; mov rdi, fileTablero
+    mov rdi, fileTablero
     mov rsi, modo
 
     sub rsp, 8
@@ -73,5 +73,7 @@ cerrar_archivo:
 errorArchivo:
     mov rdi, error
     mPrintf
+
+
 
     ret

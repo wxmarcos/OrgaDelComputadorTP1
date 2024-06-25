@@ -1,0 +1,1366 @@
+     1                                  global	moverZorro
+     2                                  extern  puts
+     3                                  extern  gets
+     4                                  extern  sscanf
+     5                                  
+     6                                  %macro mGets 0 
+     7                                      sub     rsp,8
+     8                                      call    gets
+     9                                      add     rsp,8
+    10                                  %endmacro
+    11                                  
+    12                                  %macro mPuts 0 
+    13                                      sub     rsp,8
+    14                                      call    puts
+    15                                      add     rsp,8
+    16                                  %endmacro
+    17                                  
+    18                                  
+    19                                  section	.data
+    20 00000000 496E67726573617220-         msgMovimientoZorro  db  "Ingresar W (arriba), A (izquierdo), S (abajo), D (derecha), Q (diagonal sup izq), E (diagonal sup der), Z (diagonal inf izq), C (diagonal inf der) o X (para salir)",0           
+    20 00000009 572028617272696261-
+    20 00000012 292C20412028697A71-
+    20 0000001B 75696572646F292C20-
+    20 00000024 5320286162616A6F29-
+    20 0000002D 2C2044202864657265-
+    20 00000036 636861292C20512028-
+    20 0000003F 646961676F6E616C20-
+    20 00000048 73757020697A71292C-
+    20 00000051 20452028646961676F-
+    20 0000005A 6E616C207375702064-
+    20 00000063 6572292C205A202864-
+    20 0000006C 6961676F6E616C2069-
+    20 00000075 6E6620697A71292C20-
+    20 0000007E 432028646961676F6E-
+    20 00000087 616C20696E66206465-
+    20 00000090 7229206F2058202870-
+    20 00000099 6172612073616C6972-
+    20 000000A2 2900               
+    21 000000A4 4572726F7220646520-         msjError            db  "Error de movimiento",0
+    21 000000AD 6D6F76696D69656E74-
+    21 000000B6 6F00               
+    22 000000B8 07                          longFila            db  7  
+    23 000000B9 00                          contador            db  0
+    24                                      
+    25                                  section	.bss
+    26                                      
+    27 00000000 ??                          inputValido             resb    1   ;S valido N invalido
+    28 00000001 <res 32h>                   inputMov                resb    50
+    29 00000033 <res 64h>                   posZorro                resb    100
+    30 00000097 ??                          posZorroCol             resb    1
+    31 00000098 ??                          posZorroFil             resb    1
+    32 00000099 <res 31h>                   matriz  		        resb	49
+    33                                  
+    34                                  moverZorro:
+    35 000000CA 4889FE                      mov     rsi,rdi
+    35          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    35          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    35          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    36 000000CD 48BF-                       mov     rdi,matriz
+    36          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    36          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    36 000000CF [9900000000000000] 
+    36          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    37 000000D7 B931000000                  mov     rcx,49
+    37          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    37          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    38 000000DC F3A4                        rep     movsb
+    38          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    38          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    39                                  
+    40 000000DE 4831C9                      xor     rcx,rcx
+    40          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    40          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    40          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    41 000000E1 4831FF                      xor     rdi,rdi
+    41          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    41          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    41          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    42 000000E4 4831F6                      xor     rsi,rsi
+    42          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    42          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    42          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    43                                  
+    44                                  error:
+    45 000000E7 4883EC08                    sub     rsp,8
+    45          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    45          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    45          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    45          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    46 000000EB E812000000                  call    turnoZorro
+    46          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    46          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    47 000000F0 4883C408                    add     rsp,8
+    47          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    47          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    47          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    47          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    48                                  
+    49                                  
+    50                                  ; Tendria q actualizar la matriz
+    51                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    52 000000F4 4831FF                      xor     rdi,rdi
+    52          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    52          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    52          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    53 000000F7 48BF-                       mov     rdi,matriz
+    53          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    53          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    53 000000F9 [9900000000000000] 
+    53          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    54 00000101 C3                          ret
+    54          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    55                                  
+    56                                  turnoZorro:
+    57 00000102 4883EC08                    sub     rsp,8
+    57          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    57          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    57          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    57          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    58 00000106 E812000000                  call    buscarZorro
+    58          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    58          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    59 0000010B 4883C408                    add     rsp,8
+    59          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    59          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    59          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    59          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    60                                  
+    61 0000010F 4883EC08                    sub     rsp,8
+    61          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    61          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    61          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    61          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    62 00000113 E874000000                  call    movimientoZorro   
+    62          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    62          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    63 00000118 4883C408                    add     rsp,8
+    63          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    63          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    63          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    63          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    64                                  
+    65 0000011C C3                          ret
+    65          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    66                                  
+    67                                  
+    68                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    69                                  buscarZorro:
+    70 0000011D C60425[B9000000]00          mov     byte[contador],0
+    70          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    70          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    70          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    70          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    71                                  
+    72 00000125 4883EC08                    sub     rsp,8
+    72          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    72          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    72          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    72          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    73 00000129 E805000000                  call    buscarPosZorro
+    73          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    73          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    74 0000012E 4883C408                    add     rsp,8
+    74          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    74          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    74          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    74          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    75                                  
+    76 00000132 C3                          ret
+    76          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    77                                  
+    78                                  buscarPosZorro:
+    79 00000133 4831C9                      xor     rcx,rcx
+    79          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    79          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    79          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    80 00000136 668B0C25[B9000000]          mov     cx,[contador]
+    80          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    80          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    80          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    80          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    81 0000013E 8A81[99000000]              mov     al,[matriz + rcx]
+    81          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    81          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    81          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    82 00000144 3C58                        cmp     al,'X'                      ;VA EN COMILLAS SIMPLE SI NO USAR VALOR ASCI QUE ES 88 (LUEGO CAMBIAR PARA EL 3 REQUIRE)
+    82          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    82          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    83 00000146 7409                        je      actualizarPosicion          ;ESTO DE BUSCAR LA POS DEL ZORRO PODRIA HACERSE UNA VEZ PARA NO RECORRER TODO DEVUELTA(CUANDO SE INCIALIZA EL PROGRAMA)
+    83          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    83          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    84 00000148 FE0425[B9000000]            inc     byte[contador]
+    84          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    84          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    84          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    85 0000014F EBE2                        jmp     buscarPosZorro
+    85          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    85          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    86                                  
+    87                                  actualizarPosicion:
+    88 00000151 48890C25[33000000]          mov     [posZorro],rcx
+    88          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    88          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    88          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    88          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    89 00000159 C60425[B9000000]00          mov     byte[contador],0
+    89          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    89          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    89          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    89          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    90                                  
+    91 00000161 4829C0                      sub     rax,rax
+    91          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    91          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    91          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    92 00000164 668B0425[33000000]          mov     ax,[posZorro]
+    92          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    92          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    92          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    92          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    93 0000016C F63C25[B8000000]            idiv    byte[longFila]
+    93          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    93          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    93          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    94                                  
+    95 00000173 4829C9                      sub     rcx,rcx
+    95          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    95          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    95          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    96 00000176 4829F6                      sub     rsi,rsi
+    96          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    96          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    96          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    97                                  
+    98                                      ; Cociente Fil
+    99 00000179 FEC0                        inc     al
+    99          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    99          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   100 0000017B 880425[98000000]            mov     [posZorroFil],al
+   100          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   100          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   100          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   101                                      ; Resto Col
+   102 00000182 FEC4                        inc     ah
+   102          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   102          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   103 00000184 882425[97000000]            mov     [posZorroCol],ah
+   103          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   103          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   103          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   104                                  
+   105                                  
+   106 0000018B C3                          ret
+   106          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   107                                  
+   108                                  
+   109                                  
+   110                                  movimientoZorro:
+   111 0000018C 48BF-                       mov     rdi,msgMovimientoZorro
+   111          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   111          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   111 0000018E [0000000000000000] 
+   111          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   112                                      mPuts                       
+    13 00000196 4883EC08            <1>  sub rsp,8
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    14 0000019A E8(00000000)        <1>  call puts
+    14          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    14          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15 0000019F 4883C408            <1>  add rsp,8
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   113                                  
+   114 000001A3 48BF-                       mov     rdi,inputMov
+   114          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   114          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   114 000001A5 [0100000000000000] 
+   114          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   115                                      mGets
+     7 000001AD 4883EC08            <1>  sub rsp,8
+     7          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     7          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     7          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     7          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     8 000001B1 E8(00000000)        <1>  call gets
+     8          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     8          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     9 000001B6 4883C408            <1>  add rsp,8
+     9          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     9          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     9          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+     9          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   116                                  
+   117 000001BA 4831C9                      xor     rcx,rcx
+   117          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   117          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   117          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   118 000001BD 4831C0                      xor     rax,rax
+   118          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   118          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   118          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   119 000001C0 4831FF                      xor     rdi,rdi
+   119          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   119          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   119          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   120 000001C3 4831F6                      xor     rsi,rsi 
+   120          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   120          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   120          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   121                                  
+   122 000001C6 408A3425[97000000]          mov     sil,[posZorroCol]
+   122          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   122          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   122          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   122          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   123 000001CE 408A3C25[98000000]          mov     dil,[posZorroFil]
+   123          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   123          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   123          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   123          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   124                                  
+   125                                  
+   126 000001D6 803C25[01000000]41          cmp     byte[inputMov],'A'
+   126          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   126          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   126          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   126          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   127 000001DE 0F84B6000000                je      izquierdaZorro
+   127          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   127          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   128                                  
+   129 000001E4 803C25[01000000]44          cmp     byte[inputMov],'D'
+   129          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   129          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   129          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   129          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   130 000001EC 0F845A010000                je      derechaZorro
+   130          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   130          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   131                                  
+   132 000001F2 803C25[01000000]57          cmp     byte[inputMov],'W'
+   132          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   132          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   132          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   132          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   133 000001FA 0F84FE010000                je      arribaZorro
+   133          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   133          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   134                                  
+   135 00000200 803C25[01000000]53          cmp     byte[inputMov],'S'
+   135          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   135          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   135          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   135          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   136 00000208 0F84A2020000                je      abajoZorro
+   136          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   136          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   137                                  
+   138 0000020E 803C25[01000000]51          cmp     byte[inputMov],'Q'
+   138          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   138          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   138          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   138          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   139 00000216 0F840C030000                je      diagonalArribaIzqZorro
+   139          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   139          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   140                                  
+   141 0000021C 803C25[01000000]45          cmp     byte[inputMov],'E'
+   141          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   141          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   141          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   141          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   142 00000224 0F8437030000                je      diagonalArribaDerZorro
+   142          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   142          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   143                                  
+   144 0000022A 803C25[01000000]5A          cmp     byte[inputMov],'Z'
+   144          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   144          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   144          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   144          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   145 00000232 0F8462030000                je      diagonalAbajoIzqZorro
+   145          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   145          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   146                                  
+   147 00000238 803C25[01000000]43          cmp     byte[inputMov],'C'
+   147          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   147          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   147          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   147          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   148 00000240 0F8489030000                je      diagonalAbajoDerZorro
+   148          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   148          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   149                                  
+   150 00000246 803C25[01000000]58          cmp     byte[inputMov],'X'
+   150          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   150          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   150          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   150          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   151                                      je      fin
+   151          ******************       error: symbol `fin' not defined
+   152                                  
+   153                                      ;;Si llega aca se ingreso algo no valido
+   154 0000024E C3                          ret
+   154          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   155                                  
+   156                                  
+   157                                  
+   158                                  ;*********************************
+   159                                  ; RUTINAS INTERNAS
+   160                                  ;*********************************
+   161                                  validarFyC:
+   162 0000024F C60425[00000000]4E          mov     byte[inputValido],'N'   
+   162          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   162          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   162          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   162          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   163                                  
+   164 00000257 6683FE01                    cmp     si,1
+   164          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   164          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   164          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   164          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   165 0000025B 7C1C                        jl      invalido
+   165          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   165          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   166 0000025D 6683FE07                    cmp     si,7
+   166          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   166          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   166          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   166          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   167 00000261 7F16                        jg      invalido
+   167          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   167          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   168                                  
+   169 00000263 6683FF01                    cmp     di,1
+   169          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   169          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   169          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   169          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   170 00000267 7C10                        jl      invalido
+   170          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   170          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   171 00000269 6683FF07                    cmp     di,7
+   171          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   171          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   171          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   171          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   172 0000026D 7F0A                        jg      invalido
+   172          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   172          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   173                                  
+   174 0000026F C60425[00000000]53          mov     byte[inputValido],'S'
+   174          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   174          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   174          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   174          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   175                                  invalido:
+   176 00000277 C3                          ret
+   176          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   177                                  
+   178                                  
+   179                                  
+   180                                  
+   181                                  
+   182                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   183                                  validarIzq:
+   184 00000278 66FFCE                      dec     si 
+   184          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   184          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   184          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   185 0000027B 4883EC08                    sub     rsp,8
+   185          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   185          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   185          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   185          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   186 0000027F E8CBFFFFFF                  call    validarFyC
+   186          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   186          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   187 00000284 4883C408                    add     rsp,8
+   187          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   187          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   187          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   187          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   188                                      ;inc     si
+   189                                  
+   190 00000288 803C25[00000000]53          cmp     byte[inputValido],'S'
+   190          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   190          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   190          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   190          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   191 00000290 7407                        je      pasoValiIzq
+   191          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   191          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   192                                  
+   193 00000292 E96D030000                  jmp     errorMovimientoZorro
+   193          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   193          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   194                                  
+   195                                  pasoValiIzq:
+   196 00000297 C3                          ret
+   196          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   197                                  
+   198                                  
+   199                                  izquierdaZorro:
+   200 00000298 4883EC08                    sub     rsp,8
+   200          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   200          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   200          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   200          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   201 0000029C E8D7FFFFFF                  call    validarIzq
+   201          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   201          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   202 000002A1 4883C408                    add     rsp,8
+   202          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   202          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   202          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   202          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   203                                  
+   204 000002A5 488B0C25[33000000]          mov     rcx,[posZorro]
+   204          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   204          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   204          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   204          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   205 000002AD 8A81[99000000]              mov     al,[matriz + rcx]
+   205          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   205          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   205          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   206 000002B3 4883E901                    sub     rcx,1
+   206          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   206          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   206          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   206          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   207                                  
+   208 000002B7 80B9[99000000]4F            cmp     byte [matriz + rcx],'O'
+   208          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   208          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   208          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   208          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   209 000002BE 7429                        je      verSiComeIzq
+   209          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   209          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   210                                  
+   211 000002C0 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   211          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   211          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   211          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   211          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   212 000002C7 0F8537030000                jne     errorMovimientoZorro
+   212          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   212          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   213                                  
+   214 000002CD 8881[99000000]              mov     byte [matriz + rcx], al
+   214          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   214          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   214          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   215 000002D3 48890C25[33000000]          mov     [posZorro], rcx
+   215          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   215          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   215          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   215          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   216 000002DB 4883C101                    add     rcx,1
+   216          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   216          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   216          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   216          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   217 000002DF C681[99000000]20            mov     byte [matriz + rcx],' '
+   217          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   217          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   217          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   217          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   218                                  
+   219 000002E6 C3                          ret
+   219          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   220                                  
+   221                                  verSiComeIzq:
+   222 000002E7 4883EC08                    sub     rsp,8
+   222          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   222          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   222          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   222          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   223 000002EB E888FFFFFF                  call    validarIzq
+   223          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   223          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   224 000002F0 4883C408                    add     rsp,8
+   224          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   224          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   224          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   224          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   225                                  
+   226 000002F4 4883E901                    sub     rcx,1
+   226          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   226          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   226          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   226          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   227 000002F8 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   227          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   227          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   227          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   227          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   228 000002FF 0F85FF020000                jne     errorMovimientoZorro
+   228          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   228          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   229                                  
+   230 00000305 8881[99000000]              mov     byte [matriz + rcx], al
+   230          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   230          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   230          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   231 0000030B 48890C25[33000000]          mov     [posZorro], rcx
+   231          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   231          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   231          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   231          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   232                                  
+   233 00000313 4883C101                    add     rcx,1
+   233          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   233          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   233          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   233          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   234 00000317 C681[99000000]20            mov     byte [matriz + rcx],' '
+   234          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   234          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   234          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   234          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   235 0000031E 4883C101                    add     rcx,1
+   235          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   235          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   235          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   235          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   236 00000322 C681[99000000]20            mov     byte [matriz + rcx],' '
+   236          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   236          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   236          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   236          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   237                                  
+   238 00000329 C3                          ret
+   238          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   239                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   240                                  
+   241                                  
+   242                                  
+   243                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   244                                  validarDer:
+   245 0000032A 66FFC6                      inc     si 
+   245          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   245          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   245          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   246 0000032D 4883EC08                    sub     rsp,8
+   246          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   246          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   246          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   246          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   247 00000331 E819FFFFFF                  call    validarFyC
+   247          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   247          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   248 00000336 4883C408                    add     rsp,8
+   248          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   248          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   248          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   248          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   249                                      ;dec     si
+   250                                  
+   251 0000033A 803C25[00000000]53          cmp     byte[inputValido],'S'
+   251          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   251          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   251          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   251          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   252 00000342 7407                        je      pasoValiDer
+   252          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   252          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   253                                  
+   254 00000344 E9BB020000                  jmp     errorMovimientoZorro
+   254          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   254          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   255                                  
+   256                                  pasoValiDer:
+   257 00000349 C3                          ret
+   257          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   258                                  
+   259                                  
+   260                                  derechaZorro:
+   261 0000034A 4883EC08                    sub     rsp,8
+   261          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   261          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   261          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   261          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   262 0000034E E8D7FFFFFF                  call    validarDer
+   262          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   262          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   263 00000353 4883C408                    add     rsp,8
+   263          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   263          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   263          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   263          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   264                                  
+   265 00000357 488B0C25[33000000]          mov     rcx,[posZorro]
+   265          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   265          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   265          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   265          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   266 0000035F 8A81[99000000]              mov     al,[matriz + rcx]
+   266          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   266          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   266          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   267 00000365 4883C101                    add     rcx,1
+   267          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   267          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   267          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   267          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   268                                  
+   269 00000369 80B9[99000000]4F            cmp     byte [matriz + rcx],'O'
+   269          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   269          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   269          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   269          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   270 00000370 7429                        je      verSiComeDer
+   270          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   270          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   271                                  
+   272                                      ; Para verificar limites del tablero
+   273 00000372 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   273          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   273          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   273          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   273          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   274 00000379 0F8585020000                jne     errorMovimientoZorro
+   274          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   274          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   275                                  
+   276 0000037F 8881[99000000]              mov     byte [matriz + rcx], al
+   276          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   276          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   276          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   277 00000385 48890C25[33000000]          mov     [posZorro], rcx
+   277          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   277          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   277          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   277          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   278 0000038D 4883E901                    sub     rcx,1
+   278          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   278          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   278          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   278          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   279 00000391 C681[99000000]20            mov     byte [matriz + rcx],' '
+   279          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   279          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   279          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   279          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   280                                  
+   281 00000398 C3                          ret
+   281          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   282                                  
+   283                                  verSiComeDer:
+   284 00000399 4883EC08                    sub     rsp,8
+   284          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   284          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   284          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   284          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   285 0000039D E888FFFFFF                  call    validarDer
+   285          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   285          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   286 000003A2 4883C408                    add     rsp,8
+   286          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   286          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   286          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   286          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   287                                  
+   288 000003A6 4883C101                    add     rcx,1
+   288          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   288          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   288          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   288          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   289 000003AA 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   289          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   289          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   289          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   289          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   290 000003B1 0F854D020000                jne     errorMovimientoZorro
+   290          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   290          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   291                                  
+   292 000003B7 8881[99000000]              mov     byte [matriz + rcx], al
+   292          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   292          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   292          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   293 000003BD 48890C25[33000000]          mov     [posZorro], rcx
+   293          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   293          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   293          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   293          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   294                                  
+   295 000003C5 4883E901                    sub     rcx,1
+   295          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   295          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   295          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   295          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   296 000003C9 C681[99000000]20            mov     byte [matriz + rcx],' '
+   296          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   296          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   296          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   296          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   297 000003D0 4883E901                    sub     rcx,1
+   297          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   297          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   297          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   297          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   298 000003D4 C681[99000000]20            mov     byte [matriz + rcx],' '
+   298          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   298          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   298          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   298          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   299                                  
+   300 000003DB C3                          ret
+   300          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   301                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   302                                  
+   303                                  
+   304                                  
+   305                                  
+   306                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   307                                  validarArriba:
+   308 000003DC 66FFC7                      inc     di 
+   308          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   308          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   308          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   309 000003DF 4883EC08                    sub     rsp,8
+   309          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   309          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   309          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   309          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   310 000003E3 E867FEFFFF                  call    validarFyC
+   310          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   310          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   311 000003E8 4883C408                    add     rsp,8
+   311          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   311          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   311          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   311          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   312                                      ;dec     di
+   313                                  
+   314 000003EC 803C25[00000000]53          cmp     byte[inputValido],'S'
+   314          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   314          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   314          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   314          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   315 000003F4 7407                        je      pasoValiArriba
+   315          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   315          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   316                                  
+   317 000003F6 E909020000                  jmp     errorMovimientoZorro
+   317          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   317          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   318                                  
+   319                                  pasoValiArriba:
+   320 000003FB C3                          ret
+   320          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   321                                  
+   322                                  arribaZorro:
+   323 000003FC 4883EC08                    sub     rsp,8
+   323          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   323          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   323          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   323          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   324 00000400 E825FFFFFF                  call    validarDer
+   324          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   324          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   325 00000405 4883C408                    add     rsp,8
+   325          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   325          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   325          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   325          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   326                                  
+   327 00000409 488B0C25[33000000]          mov     rcx,[posZorro]
+   327          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   327          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   327          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   327          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   328 00000411 8A81[99000000]              mov     al,[matriz + rcx]
+   328          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   328          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   328          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   329 00000417 4883E907                    sub     rcx,7
+   329          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   329          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   329          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   329          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   330                                  
+   331 0000041B 80B9[99000000]4F            cmp     byte [matriz + rcx],'O'
+   331          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   331          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   331          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   331          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   332 00000422 7429                        je      verSiComeArriba
+   332          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   332          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   333                                  
+   334 00000424 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   334          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   334          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   334          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   334          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   335 0000042B 0F85D3010000                jne     errorMovimientoZorro
+   335          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   335          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   336                                  
+   337 00000431 8881[99000000]              mov     byte [matriz + rcx], al
+   337          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   337          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   337          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   338 00000437 4883C107                    add     rcx,7
+   338          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   338          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   338          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   338          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   339 0000043B 48890C25[33000000]          mov     [posZorro], rcx
+   339          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   339          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   339          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   339          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   340 00000443 C681[99000000]20            mov     byte [matriz + rcx],' '
+   340          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   340          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   340          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   340          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   341                                  
+   342 0000044A C3                          ret
+   342          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   343                                  
+   344                                  
+   345                                  verSiComeArriba:
+   346 0000044B 4883EC08                    sub     rsp,8
+   346          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   346          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   346          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   346          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   347 0000044F E8D6FEFFFF                  call    validarDer
+   347          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   347          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   348 00000454 4883C408                    add     rsp,8
+   348          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   348          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   348          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   348          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   349                                  
+   350 00000458 4883E907                    sub     rcx,7
+   350          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   350          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   350          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   350          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   351 0000045C 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   351          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   351          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   351          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   351          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   352 00000463 0F859B010000                jne     errorMovimientoZorro
+   352          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   352          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   353                                  
+   354 00000469 8881[99000000]              mov     byte [matriz + rcx], al
+   354          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   354          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   354          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   355 0000046F 48890C25[33000000]          mov     [posZorro], rcx
+   355          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   355          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   355          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   355          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   356                                  
+   357 00000477 4883C107                    add     rcx,7
+   357          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   357          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   357          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   357          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   358 0000047B C681[99000000]20            mov     byte [matriz + rcx],' '
+   358          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   358          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   358          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   358          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   359 00000482 4883C107                    add     rcx,7
+   359          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   359          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   359          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   359          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   360 00000486 C681[99000000]20            mov     byte [matriz + rcx],' '
+   360          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   360          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   360          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   360          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   361                                  
+   362 0000048D C3                          ret
+   362          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   363                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   364                                  
+   365                                  
+   366                                  
+   367                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   368                                  validarAbajo:
+   369 0000048E 66FFCF                      dec     di 
+   369          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   369          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   369          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   370 00000491 4883EC08                    sub     rsp,8
+   370          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   370          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   370          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   370          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   371 00000495 E8B5FDFFFF                  call    validarFyC
+   371          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   371          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   372 0000049A 4883C408                    add     rsp,8
+   372          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   372          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   372          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   372          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   373                                      ;inc    di
+   374                                  
+   375 0000049E 803C25[00000000]53          cmp     byte[inputValido],'S'
+   375          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   375          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   375          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   375          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   376 000004A6 7407                        je      pasoValiAbajo
+   376          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   376          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   377                                  
+   378 000004A8 E957010000                  jmp     errorMovimientoZorro
+   378          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   378          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   379                                  
+   380                                  pasoValiAbajo:
+   381 000004AD C3                          ret
+   381          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   382                                  
+   383                                  
+   384                                  abajoZorro:
+   385 000004AE 488B0C25[33000000]          mov     rcx,[posZorro]
+   385          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   385          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   385          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   385          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   386 000004B6 8A81[99000000]              mov     al,[matriz + rcx]
+   386          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   386          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   386          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   387 000004BC 4883C107                    add     rcx,7
+   387          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   387          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   387          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   387          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   388                                  
+   389 000004C0 80B9[99000000]4F            cmp     byte [matriz + rcx],'O'
+   389          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   389          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   389          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   389          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   390 000004C7 7429                        je      verSiComeAbajo
+   390          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   390          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   391                                  
+   392 000004C9 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   392          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   392          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   392          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   392          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   393 000004D0 0F852E010000                jne     errorMovimientoZorro
+   393          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   393          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   394                                  
+   395 000004D6 8881[99000000]              mov     byte [matriz + rcx], al
+   395          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   395          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   395          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   396 000004DC 4883E907                    sub     rcx,7
+   396          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   396          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   396          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   396          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   397 000004E0 48890C25[33000000]          mov     [posZorro], rcx
+   397          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   397          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   397          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   397          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   398 000004E8 C681[99000000]20            mov     byte [matriz + rcx],' '
+   398          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   398          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   398          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   398          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   399                                      
+   400 000004EF C3                          ret 
+   400          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   401                                  
+   402                                  verSiComeAbajo:
+   403 000004F0 4883C107                    add     rcx,7
+   403          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   403          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   403          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   403          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   404 000004F4 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   404          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   404          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   404          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   404          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   405 000004FB 0F8503010000                jne     errorMovimientoZorro
+   405          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   405          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   406                                  
+   407 00000501 8881[99000000]              mov     byte [matriz + rcx], al
+   407          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   407          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   407          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   408 00000507 48890C25[33000000]          mov     [posZorro], rcx
+   408          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   408          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   408          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   408          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   409                                  
+   410 0000050F 4883E907                    sub     rcx,7
+   410          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   410          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   410          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   410          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   411 00000513 C681[99000000]20            mov     byte [matriz + rcx],' '
+   411          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   411          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   411          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   411          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   412 0000051A 4883E907                    sub     rcx,7
+   412          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   412          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   412          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   412          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   413 0000051E C681[99000000]20            mov     byte [matriz + rcx],' '
+   413          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   413          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   413          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   413          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   414                                  
+   415 00000525 C3                          ret
+   415          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   416                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   417                                  
+   418                                  
+   419                                  
+   420                                  
+   421                                  diagonalArribaIzqZorro:
+   422 00000526 488B0C25[33000000]          mov     rcx,[posZorro]
+   422          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   422          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   422          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   422          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   423 0000052E 8A81[99000000]              mov     al,[matriz + rcx]
+   423          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   423          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   423          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   424 00000534 4883E908                    sub     rcx,8
+   424          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   424          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   424          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   424          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   425 00000538 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   425          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   425          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   425          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   425          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   426 0000053F 0F85BF000000                jne     errorMovimientoZorro
+   426          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   426          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   427                                  
+   428 00000545 8881[99000000]              mov     byte [matriz + rcx], al
+   428          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   428          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   428          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   429 0000054B 4883C108                    add     rcx,8
+   429          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   429          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   429          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   429          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   430 0000054F 48890C25[33000000]          mov     [posZorro], rcx
+   430          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   430          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   430          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   430          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   431 00000557 C681[99000000]20            mov     byte [matriz + rcx],' '
+   431          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   431          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   431          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   431          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   432                                      
+   433 0000055E C3                          ret 
+   433          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   434                                  
+   435                                  
+   436                                  diagonalArribaDerZorro:
+   437 0000055F 488B0C25[33000000]          mov     rcx,[posZorro]
+   437          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   437          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   437          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   437          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   438 00000567 8A81[99000000]              mov     al,[matriz + rcx]
+   438          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   438          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   438          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   439 0000056D 4883E906                    sub     rcx,6
+   439          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   439          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   439          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   439          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   440 00000571 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   440          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   440          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   440          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   440          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   441 00000578 0F8586000000                jne     errorMovimientoZorro
+   441          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   441          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   442                                  
+   443 0000057E 8881[99000000]              mov     byte [matriz + rcx], al
+   443          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   443          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   443          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   444 00000584 4883C106                    add     rcx,6
+   444          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   444          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   444          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   444          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   445 00000588 48890C25[33000000]          mov     [posZorro], rcx
+   445          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   445          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   445          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   445          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   446 00000590 C681[99000000]20            mov     byte [matriz + rcx],' '
+   446          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   446          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   446          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   446          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   447                                      
+   448 00000597 C3                          ret 
+   448          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   449                                  
+   450                                  
+   451                                  diagonalAbajoIzqZorro:
+   452 00000598 488B0C25[33000000]          mov     rcx,[posZorro]
+   452          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   452          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   452          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   452          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   453 000005A0 8A81[99000000]              mov     al,[matriz + rcx]
+   453          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   453          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   453          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   454 000005A6 4883C106                    add     rcx,6
+   454          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   454          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   454          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   454          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   455 000005AA 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   455          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   455          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   455          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   455          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   456 000005B1 7551                        jne     errorMovimientoZorro
+   456          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   456          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   457                                  
+   458 000005B3 8881[99000000]              mov     byte [matriz + rcx], al
+   458          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   458          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   458          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   459 000005B9 4883E906                    sub     rcx,6
+   459          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   459          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   459          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   459          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   460 000005BD 48890C25[33000000]          mov     [posZorro], rcx
+   460          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   460          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   460          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   460          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   461 000005C5 C681[99000000]20            mov     byte [matriz + rcx],' '
+   461          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   461          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   461          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   461          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   462                                      
+   463 000005CC C3                          ret 
+   463          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   464                                  
+   465                                  
+   466                                  diagonalAbajoDerZorro:
+   467 000005CD 488B0C25[33000000]          mov     rcx,[posZorro]
+   467          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   467          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   467          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   467          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   468 000005D5 8A81[99000000]              mov     al,[matriz + rcx]
+   468          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   468          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   468          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   469 000005DB 4883C108                    add     rcx,8
+   469          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   469          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   469          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   469          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   470 000005DF 80B9[99000000]20            cmp     byte [matriz + rcx],' '
+   470          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   470          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   470          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   470          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   471 000005E6 751C                        jne     errorMovimientoZorro
+   471          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   471          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   472                                  
+   473 000005E8 8881[99000000]              mov     byte [matriz + rcx], al
+   473          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   473          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   473          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   474 000005EE 4883E908                    sub     rcx,8
+   474          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   474          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   474          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   474          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   475 000005F2 48890C25[33000000]          mov     [posZorro], rcx
+   475          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   475          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   475          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   475          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   476 000005FA C681[99000000]20            mov     byte [matriz + rcx],' '
+   476          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   476          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   476          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   476          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   477                                      
+   478 00000601 C3                          ret 
+   478          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   479                                  
+   480                                  
+   481                                  
+   482                                  errorMovimientoZorro:
+   483 00000602 48BF-                       mov     rdi,msjError
+   483          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   483          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   483 00000604 [A400000000000000] 
+   483          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   484                                      mPuts 
+    13 0000060C 4883EC08            <1>  sub rsp,8
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    13          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    14 00000610 E8(00000000)        <1>  call puts
+    14          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    14          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15 00000615 4883C408            <1>  add rsp,8
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+    15          ******************  <1>  warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   485                                  
+   486 00000619 E9C9FAFFFF                  jmp      error
+   486          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]
+   486          ******************       warning: attempt to initialize memory in BSS section `.bss': ignored [-w+other]

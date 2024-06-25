@@ -1,77 +1,108 @@
-global printMapa
-extern printf, fopen, fgets, fclose, puts
+global	printMapa
+extern	printf
+extern  puts
+extern  gets
+extern  sscanf
 
-%macro mPrintf 0 
+%macro mGets 0 
     sub     rsp,8
-    call    printf
+    call    gets
     add     rsp,8
 %endmacro
 
+%macro mPuts 0 
+    sub     rsp,8
+    call    puts
+    add     rsp,8
+%endmacro
 
-section .data
-    ;fileTablero     db "mapa.txt", 0
-    modo            db "r", 0
-    error           db "Error de archivo", 0
-    formato         db "%s", 0
-    formatoElemento db "%c", 0
+%macro mPrintf 0 
+    sub     rsp, 8         
+    call    printf         
+    add     rsp, 8
+%endmacro
 
-    posX            dw 010
-    posY            dw 03
 
-section .bss
-    idTablero       resq 1
-    registro        resb 200
+section	.data
+    separador           db  " ",10,0
+    char                db  "|%c|",0
+    charNum             db  "|%hhi| ",0    
+    newline             db  10,0                                ;OJO LOS DATOS SIEMPRE ORDENADOS POR CATEGORIA POR QUE PUEDE DAR ERROR SI NO XD
+    longFila            db  7                                   ;PARA TESTEAR EN GDB PUEDEN PONER LOS BREAKPOINT EMPEZANDO POR OTRAS PARTES,
+
+    nFil                db  1
+    
+    contador            db  0
+    
+
+section	.bss
+    matriz  		    resb	49
 
 
 section .text
 printMapa:
+    mov     rsi,rdi
+    mov     rdi, matriz
+    mov     rcx,49
+    rep     movsb
 
-    ; Apertura de archivo
-    ; mov rdi, fileTablero
-    mov rsi, modo
+    sub     rcx,rcx
+    sub     rsi,rsi
+    sub     rdi,rdi 
 
-    sub rsp, 8
-    call fopen
-    add rsp, 8
-
-    cmp rax, 0
-    jle errorArchivo
-    mov qword[idTablero], rax
-    
-
-    ; Leer y imprimir cada linea del archivo
-leer_linea:
-    mov rdi, registro
-    mov rsi, 200
-    mov rdx, [idTablero]
-
-    sub rsp, 8
-    call fgets
-    add rsp, 8
-
-    cmp rax, 0
-    je cerrar_archivo
-
-    ; Imprimir linea
-    mov rdi, formato
-    mov rsi, registro
-
+    mov     rdi,separador
     mPrintf
 
-    jmp leer_linea
+    mov     rdi,charNum
+    mov     sil,[nFil]
+    mPrintf
+    inc     byte[nFil]
 
-cerrar_archivo:
-    ; Cierre de archivo
-    mov rdi, [idTablero]
 
-    sub rsp, 8
-    call fclose
-    add rsp, 8
-    
+    sub     rsp,8
+    call    imprimir
+    add     rsp,8
+
     ret
-
-errorArchivo:
-    mov rdi, error
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMPRIME MATRIZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+imprimir:           
+    xor     rcx,rcx                                              
+    mov     rdi,char
+    mov     cx,[contador]
+    mov     rsi,[matriz + rcx]              ;;; EL PROBLEMA DEL RCX ES QUE CUANDO LLAMAS A PRINTF COMO LO USA EN SUS PARAMETROS LO LLENA DE KK(ARREGLAR LUEGO)
     mPrintf
+    
+    inc     byte[contador]
+
+    ; Cada 7 elementos \n
+    mov     ax,[contador]
+    idiv    byte[longFila]
+
+    cmp     ah,0
+    je      nuevaLinea
+
+    jmp     imprimir
+
+nuevaLinea:
+    mov     rdi, newline   
+    mPrintf
+
+    sub     rdi,rdi
+    sub     rsi,rsi
+    mov     rdi,charNum
+    mov     sil,[nFil]
+    cmp     sil,8
+    je      continuar
+    mPrintf
+    inc     byte[nFil]
+
+continuar:
+    cmp     byte[contador],49
+    je      finLoop
+    jmp     imprimir  
+
+finLoop:
+    mov     byte[contador],0
+    mov     byte[nFil],1
 
     ret

@@ -1,0 +1,1088 @@
+     1                                  global	main
+     2                                  extern	printf
+     3                                  extern  puts
+     4                                  extern  gets
+     5                                  extern  sscanf
+     6                                  extern  printMapa
+     7                                  extern  system
+     8                                  
+     9                                  
+    10                                  %macro mPrintf 0 
+    11                                      sub     rsp,8
+    12                                      call    printf
+    13                                      add     rsp,8
+    14                                  %endmacro
+    15                                  
+    16                                  %macro mGets 0 
+    17                                      sub     rsp,8
+    18                                      call    gets
+    19                                      add     rsp,8
+    20                                  %endmacro
+    21                                  
+    22                                  %macro mPuts 0 
+    23                                      sub     rsp,8
+    24                                      call    puts
+    25                                      add     rsp,8
+    26                                  %endmacro
+    27                                  
+    28                                  
+    29                                  section	.data
+    30 00000000 23234F4F4F2323              matriz      db  "#","#","O","O","O","#","#"
+    31 00000007 23234F4F4F2323                          db  "#","#","O","O","O","#","#"
+    32 0000000E 4F4F4F4F4F4F4F                          db  "O","O","O","O","O","O","O"
+    33 00000015 4F4F4F584F4F4F                          db  "O","O","O","X","O","O","O"
+    34 0000001C 4F4F4F4F4F4F4F                          db  "O","O","O","O","O","O","O"
+    35 00000023 23234F4F4F2323                          db  "#","#","O","O","O","#","#"
+    36 0000002A 23232020202323                          db  "#","#"," "," "," ","#","#"
+    37                                                                  
+    38 00000031 496E67726573617220-         msgMovimientoZorro  db  "Ingresar W (arriba), A (izquierda), S (abajo), D (derecha), Q (diagonal sup izq), E (diagonal sup der), Z (diagonal inf izq), C (diagonal inf der) o X (para guardar y salir)",0
+    38 0000003A 572028617272696261-
+    38 00000043 292C20412028697A71-
+    38 0000004C 756965726461292C20-
+    38 00000055 5320286162616A6F29-
+    38 0000005E 2C2044202864657265-
+    38 00000067 636861292C20512028-
+    38 00000070 646961676F6E616C20-
+    38 00000079 73757020697A71292C-
+    38 00000082 20452028646961676F-
+    38 0000008B 6E616C207375702064-
+    38 00000094 6572292C205A202864-
+    38 0000009D 6961676F6E616C2069-
+    38 000000A6 6E6620697A71292C20-
+    38 000000AF 432028646961676F6E-
+    38 000000B8 616C20696E66206465-
+    38 000000C1 7229206F2058202870-
+    38 000000CA 617261206775617264-
+    38 000000D3 617220792073616C69-
+    38 000000DC 722900             
+    39 000000DF 496E67726573652041-         msjMovimientoOcas   db  "Ingrese A (izquierda), S (abajo), D (derecha)",0
+    39 000000E8 2028697A7175696572-
+    39 000000F1 6461292C2053202861-
+    39 000000FA 62616A6F292C204420-
+    39 00000103 286465726563686129-
+    39 0000010C 00                 
+    40 0000010D 496E67726573652066-         msjIngFilCol	    db	"Ingrese fila (1 a 7) y columna (1 a 7) separados por un espacio para seleccionar la oca que quiera mover: ",0
+    40 00000116 696C61202831206120-
+    40 0000011F 3729207920636F6C75-
+    40 00000128 6D6E61202831206120-
+    40 00000131 372920736570617261-
+    40 0000013A 646F7320706F722075-
+    40 00000143 6E206573706163696F-
+    40 0000014C 20706172612073656C-
+    40 00000155 656363696F6E617220-
+    40 0000015E 6C61206F6361207175-
+    40 00000167 652071756965726120-
+    40 00000170 6D6F7665723A2000   
+    41 00000178 4C6F73206461746F73-         msjErrorInput       db  "Los datos ingresados son inválidos. Intente nuevamente.",0
+    41 00000181 20696E677265736164-
+    41 0000018A 6F7320736F6E20696E-
+    41 00000193 76C3A16C69646F732E-
+    41 0000019C 20496E74656E746520-
+    41 000001A5 6E756576616D656E74-
+    41 000001AE 652E00             
+    42 000001B1 4E6F2068617920756E-         msjNoHayOca         db  "No hay una oca en esa posicion.",0
+    42 000001BA 61206F636120656E20-
+    42 000001C3 65736120706F736963-
+    42 000001CC 696F6E2E00         
+    43 000001D1 43616E746964616420-         msjOcasCapturadas   db  "Cantidad de ocas capturadas: %hhi",10,0
+    43 000001DA 6465206F6361732063-
+    43 000001E3 617074757261646173-
+    43 000001EC 3A20256868690A00   
+    44 000001F4 4572726F7220646520-         msjError            db  "Error de movimiento",0
+    44 000001FD 6D6F76696D69656E74-
+    44 00000206 6F00               
+    45                                  
+    46 00000208 202020207C317C7C32-         columnas            db  "    |1||2||3||4||5||6||7|",0
+    46 00000211 7C7C337C7C347C7C35-
+    46 0000021A 7C7C367C7C377C00   
+    47 00000222 202020202D2D2D2D2D-         separador           db  "    ---------------------",0
+    47 0000022B 2D2D2D2D2D2D2D2D2D-
+    47 00000234 2D2D2D2D2D2D2D00   
+    48                                  
+    49 0000023C 0AC2A1C2A1C2A14761-         msjGanaZorro        db  10,"¡¡¡Gana el Zorro por capturar 12 ocas!!!",10,10,0   
+    49 00000245 6E6120656C205A6F72-
+    49 0000024E 726F20706F72206361-
+    49 00000257 707475726172203132-
+    49 00000260 206F6361732121210A-
+    49 00000269 0A00               
+    50                                  
+    51 0000026B 256868692025686869-         formatInputFilCol	db	"%hhi %hhi",0  
+    51 00000274 00                 
+    52 00000275 636C65617200                cmdClear            db  "clear",0
+    53                                  
+    54 0000027B 00                          contador            db  0
+    55 0000027C 00                          turno               db  0
+    56 0000027D 00                          ocasCapturadas      db  0
+    57                                  
+    58                                  	LONG_ELEM	        equ	1
+    59                                  	CANT_FIL	        equ	7
+    60                                  	CANT_COL	        equ	7
+    61 0000027E 07                          longFila            db  7
+    62                                  
+    63 0000027F 0000                        desplazOca			dw	0
+    64                                  
+    65                                  section .bss
+    66 00000000 <res 32h>                   inputFilCol		        resb	50
+    67 00000032 ????                       	filOca		            resw	1
+    68 00000034 ????                    	colOca       	        resw	1 	
+    69 00000036 ??                          inputValido             resb    1   ;S valido N invalido
+    70                                  
+    71 00000037 <res 32h>                   inputMov                resb    50
+    72 00000069 <res 64h>                   posZorro                resb    100
+    73 000000CD ??                          posZorroCol             resb    1
+    74 000000CE ??                          posZorroFil             resb    1
+    75                                  
+    76                                  
+    77                                  
+    78                                  section .text
+    79                                  
+    80                                  main:
+    81                                      ; Limpia la pantalla
+    82 00000000 48BF-                       mov     rdi,cmdClear
+    82 00000002 [7502000000000000] 
+    83 0000000A 4883EC08                    sub		rsp,8	
+    84 0000000E E8(00000000)                call    system    
+    85 00000013 4883C408                	add		rsp,8	
+    86                                  
+    87                                      ; Printea el mapa actualizado
+    88 00000017 48BF-                       mov     rdi, columnas
+    88 00000019 [0802000000000000] 
+    89                                      mPuts
+    23 00000021 4883EC08            <1>  sub rsp,8
+    24 00000025 E8(00000000)        <1>  call puts
+    25 0000002A 4883C408            <1>  add rsp,8
+    90 0000002E 48BF-                       mov     rdi, separador
+    90 00000030 [2202000000000000] 
+    91                                      mPuts
+    23 00000038 4883EC08            <1>  sub rsp,8
+    24 0000003C E8(00000000)        <1>  call puts
+    25 00000041 4883C408            <1>  add rsp,8
+    92                                  
+    93 00000045 4831FF                      xor     rdi,rdi
+    94 00000048 488D3C25[00000000]          lea     rdi,[matriz]
+    95                                  
+    96 00000050 4883EC08                    sub		rsp,8	
+    97 00000054 E8(00000000)                call    printMapa    
+    98 00000059 4883C408                	add		rsp,8	
+    99                                  
+   100 0000005D 48BF-                       mov     rdi, msjOcasCapturadas
+   100 0000005F [D101000000000000] 
+   101 00000067 408A3425[7D020000]          mov     sil, [ocasCapturadas]
+   102                                      mPrintf
+    11 0000006F 4883EC08            <1>  sub rsp,8
+    12 00000073 E8(00000000)        <1>  call printf
+    13 00000078 4883C408            <1>  add rsp,8
+   103                                  
+   104                                  
+   105                                  errorMovZorro:
+   106                                  ; Si el zorro come salta aca para mover otra vez, o si hay un error de mov.
+   107                                  comioZorro:
+   108 0000007C 4883EC08                    sub     rsp,8
+   109 00000080 E8E2000000                  call    turnoZorro
+   110 00000085 4883C408                    add     rsp,8
+   111                                  
+   112                                      ; Printea el mapa actualizado
+   113 00000089 48BF-                       mov     rdi, columnas
+   113 0000008B [0802000000000000] 
+   114                                      mPuts
+    23 00000093 4883EC08            <1>  sub rsp,8
+    24 00000097 E8(00000000)        <1>  call puts
+    25 0000009C 4883C408            <1>  add rsp,8
+   115 000000A0 48BF-                       mov     rdi, separador
+   115 000000A2 [2202000000000000] 
+   116                                      mPuts
+    23 000000AA 4883EC08            <1>  sub rsp,8
+    24 000000AE E8(00000000)        <1>  call puts
+    25 000000B3 4883C408            <1>  add rsp,8
+   117 000000B7 4831FF                      xor     rdi,rdi
+   118 000000BA 48BF-                       mov     rdi,matriz
+   118 000000BC [0000000000000000] 
+   119                                  
+   120 000000C4 4883EC08                    sub		rsp,8	
+   121 000000C8 E8(00000000)                call    printMapa    
+   122 000000CD 4883C408                	add		rsp,8
+   123                                  
+   124 000000D1 48BF-                       mov     rdi, msjOcasCapturadas
+   124 000000D3 [D101000000000000] 
+   125 000000DB 408A3425[7D020000]          mov     sil, [ocasCapturadas]
+   126                                      mPrintf
+    11 000000E3 4883EC08            <1>  sub rsp,8
+    12 000000E7 E8(00000000)        <1>  call printf
+    13 000000EC 4883C408            <1>  add rsp,8
+   127                                  
+   128                                  
+   129                                      ; Chequea condicion de fin.
+   130 000000F0 4829FF                      sub     rdi,rdi
+   131 000000F3 408A3C25[7D020000]          mov     dil,[ocasCapturadas]
+   132 000000FB 4080FF0C                    cmp     dil,12
+   133 000000FF 7425                        je      fin
+   134                                  
+   135                                  
+   136 00000101 4831C9                      xor     rcx,rcx
+   137 00000104 8A0C25[7C020000]            mov     cl,byte[turno]
+   138 0000010B 80F900                      cmp     cl,0
+   139 0000010E 0F84ECFEFFFF                je      main
+   140                                      
+   141                                  errorMovOca:
+   142                                      ; Siguen las Ocas
+   143 00000114 4883EC08                    sub     rsp,8
+   144 00000118 E8D6070000                  call    turnoOcas
+   145 0000011D 4883C408                    add     rsp,8
+   146                                  
+   147 00000121 E9DAFEFFFF                  jmp     main
+   148                                  
+   149                                  
+   150                                  fin:
+   151                                      ; Guardamos partida
+   152                                      ; ....
+   153                                      ; ....
+   154                                      ; ....
+   155                                  
+   156 00000126 48BF-                       mov     rdi, msjGanaZorro
+   156 00000128 [3C02000000000000] 
+   157                                      mPrintf
+    11 00000130 4883EC08            <1>  sub rsp,8
+    12 00000134 E8(00000000)        <1>  call printf
+    13 00000139 4883C408            <1>  add rsp,8
+   158                                  
+   159 0000013D C3                          ret
+   160                                  
+   161                                  
+   162                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   163                                  ;; VALIDAR FILA COLUMNA.
+   164                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   165                                  validarFyC:
+   166 0000013E C60425[36000000]4E          mov     byte[inputValido],'N'   
+   167                                  
+   168 00000146 6683FE01                    cmp     si,1
+   169 0000014A 7C1A                        jl      invalido
+   170 0000014C 6683FE07                    cmp     si,7
+   171 00000150 7F14                        jg      invalido
+   172                                  
+   173 00000152 6683FF01                    cmp     di,1
+   174 00000156 7C0E                        jl      invalido
+   175 00000158 6683FF07                    cmp     di,7
+   176 0000015C 7F08                        jg      invalido
+   177                                  
+   178 0000015E C60425[36000000]53          mov     byte[inputValido],'S'
+   179                                  invalido:
+   180 00000166 C3                          ret
+   181                                  
+   182                                  
+   183                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   184                                  ;; RUTINAS INTERNAS
+   185                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   186                                  turnoZorro:
+   187 00000167 4883EC08                    sub     rsp,8
+   188 0000016B E812000000                  call    buscarZorro
+   189 00000170 4883C408                    add     rsp,8
+   190                                  
+   191 00000174 4883EC08                    sub     rsp,8
+   192 00000178 E874000000                  call    movimientoZorro   
+   193 0000017D 4883C408                    add     rsp,8
+   194                                  
+   195 00000181 C3                          ret
+   196                                  
+   197                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Ç
+   198                                  ; BUCAR LA POSICION ACTUAL DEL ZORRO.
+   199                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   200                                  buscarZorro:
+   201 00000182 C60425[7B020000]00          mov     byte[contador],0
+   202                                  
+   203 0000018A 4883EC08                    sub     rsp,8
+   204 0000018E E805000000                  call    buscarPosZorro
+   205 00000193 4883C408                    add     rsp,8
+   206                                  
+   207 00000197 C3                          ret
+   208                                  
+   209                                  buscarPosZorro:
+   210 00000198 4831C9                      xor     rcx,rcx
+   211 0000019B 668B0C25[7B020000]          mov     cx,[contador]
+   212 000001A3 8A81[00000000]              mov     al,[matriz + rcx]
+   213 000001A9 3C58                        cmp     al,'X'                      
+   214 000001AB 7409                        je      actualizarPosicion          
+   215 000001AD FE0425[7B020000]            inc     byte[contador]
+   216 000001B4 EBE2                        jmp     buscarPosZorro
+   217                                  
+   218                                  actualizarPosicion:
+   219 000001B6 48890C25[69000000]          mov     [posZorro],rcx
+   220 000001BE C60425[7B020000]00          mov     byte[contador],0
+   221                                  
+   222 000001C6 4829C0                      sub     rax,rax
+   223 000001C9 668B0425[69000000]          mov     ax,[posZorro]
+   224 000001D1 F63C25[7E020000]            idiv    byte[longFila]
+   225                                  
+   226 000001D8 4829C9                      sub     rcx,rcx
+   227 000001DB 4829F6                      sub     rsi,rsi
+   228                                  
+   229                                      ; Cociente Fil
+   230 000001DE FEC0                        inc     al
+   231 000001E0 880425[CE000000]            mov     [posZorroFil],al
+   232                                      ; Resto Col
+   233 000001E7 FEC4                        inc     ah
+   234 000001E9 882425[CD000000]            mov     [posZorroCol],ah
+   235                                  
+   236 000001F0 C3                          ret
+   237                                  
+   238                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   239                                  ; VALIDAR INGRESO POR TECLADO DEL MOVIMIENTO DEL ZORRO
+   240                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   241                                  movimientoZorro:
+   242 000001F1 48BF-                       mov     rdi,msgMovimientoZorro
+   242 000001F3 [3100000000000000] 
+   243                                      mPuts                       
+    23 000001FB 4883EC08            <1>  sub rsp,8
+    24 000001FF E8(00000000)        <1>  call puts
+    25 00000204 4883C408            <1>  add rsp,8
+   244                                  
+   245 00000208 48BF-                       mov     rdi,inputMov
+   245 0000020A [3700000000000000] 
+   246                                      mGets
+    17 00000212 4883EC08            <1>  sub rsp,8
+    18 00000216 E8(00000000)        <1>  call gets
+    19 0000021B 4883C408            <1>  add rsp,8
+   247                                  
+   248 0000021F 4831C9                      xor     rcx,rcx
+   249 00000222 4831C0                      xor     rax,rax
+   250 00000225 4831FF                      xor     rdi,rdi
+   251 00000228 4831F6                      xor     rsi,rsi 
+   252                                  
+   253 0000022B 408A3425[CD000000]          mov     sil,[posZorroCol]
+   254 00000233 408A3C25[CE000000]          mov     dil,[posZorroFil]
+   255                                  
+   256                                  
+   257 0000023B 803C25[37000000]41          cmp     byte[inputMov],'A'
+   258 00000243 0F8494000000                je      izquierdaZorro
+   259                                  
+   260 00000249 803C25[37000000]44          cmp     byte[inputMov],'D'
+   261 00000251 0F8449010000                je      derechaZorro
+   262                                  
+   263 00000257 803C25[37000000]57          cmp     byte[inputMov],'W'
+   264 0000025F 0F84FE010000                je      arribaZorro
+   265                                  
+   266 00000265 803C25[37000000]53          cmp     byte[inputMov],'S'
+   267 0000026D 0F84B3020000                je      abajoZorro
+   268                                  
+   269 00000273 803C25[37000000]51          cmp     byte[inputMov],'Q'
+   270 0000027B 0F846B030000                je      diagonalArribaIzqZorro
+   271                                  
+   272 00000281 803C25[37000000]45          cmp     byte[inputMov],'E'
+   273 00000289 0F8423040000                je      diagonalArribaDerZorro
+   274                                  
+   275 0000028F 803C25[37000000]5A          cmp     byte[inputMov],'Z'
+   276 00000297 0F84DB040000                je      diagonalAbajoIzqZorro
+   277                                  
+   278 0000029D 803C25[37000000]43          cmp     byte[inputMov],'C'
+   279 000002A5 0F8493050000                je      diagonalAbajoDerZorro
+   280                                  
+   281 000002AB 803C25[37000000]58          cmp     byte[inputMov],'X'
+   282 000002B3 0F846DFEFFFF                je      fin
+   283                                  
+   284                                      ; Si llega aca se ingreso algo no valido
+   285 000002B9 C3                          ret
+   286                                  
+   287                                  
+   288                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   289                                  ; MOVIMIENTOS DEL ZORRO.
+   290                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   291                                  validarIzq:
+   292 000002BA 66FFCE                      dec     si 
+   293 000002BD 4883EC08                    sub     rsp,8
+   294 000002C1 E878FEFFFF                  call    validarFyC
+   295 000002C6 4883C408                    add     rsp,8
+   296                                  
+   297 000002CA 803C25[36000000]53          cmp     byte[inputValido],'S'
+   298 000002D2 0F84FE050000                je      pasoValido
+   299 000002D8 E9FA050000                  jmp     errorMovimientoZorro
+   300                                  
+   301                                  izquierdaZorro:
+   302 000002DD 4883EC08                    sub     rsp,8
+   303 000002E1 E8D4FFFFFF                  call    validarIzq
+   304 000002E6 4883C408                    add     rsp,8
+   305                                  
+   306 000002EA 488B0C25[69000000]          mov     rcx,[posZorro]
+   307 000002F2 8A81[00000000]              mov     al,[matriz + rcx]
+   308 000002F8 4883E901                    sub     rcx,1
+   309                                  
+   310 000002FC 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   311 00000303 742E                        je      verSiComeIzq
+   312                                  
+   313 00000305 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   314 0000030C 0F85C5050000                jne     errorMovimientoZorro
+   315                                  
+   316 00000312 8881[00000000]              mov     byte [matriz + rcx], al
+   317 00000318 48890C25[69000000]          mov     [posZorro], rcx
+   318 00000320 4883C101                    add     rcx,1
+   319 00000324 C681[00000000]20            mov     byte [matriz + rcx],' '
+   320                                  
+   321 0000032B FE0425[7C020000]            inc     byte[turno]
+   322                                  
+   323 00000332 C3                          ret
+   324                                  
+   325                                  verSiComeIzq:
+   326 00000333 4883EC08                    sub     rsp,8
+   327 00000337 E87EFFFFFF                  call    validarIzq
+   328 0000033C 4883C408                    add     rsp,8
+   329                                  
+   330 00000340 4883E901                    sub     rcx,1
+   331 00000344 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   332 0000034B 0F8586050000                jne     errorMovimientoZorro
+   333                                  
+   334 00000351 8881[00000000]              mov     byte [matriz + rcx], al
+   335 00000357 48890C25[69000000]          mov     [posZorro], rcx
+   336                                  
+   337 0000035F 4883C101                    add     rcx,1
+   338 00000363 C681[00000000]20            mov     byte [matriz + rcx],' '
+   339 0000036A 4883C101                    add     rcx,1
+   340 0000036E C681[00000000]20            mov     byte [matriz + rcx],' '
+   341                                  
+   342 00000375 FE0425[7D020000]            inc     byte[ocasCapturadas]
+   343                                  
+   344 0000037C C3                          ret
+   345                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   346                                  
+   347                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   348                                  validarDer:
+   349 0000037D 66FFC6                      inc     si 
+   350 00000380 4883EC08                    sub     rsp,8
+   351 00000384 E8B5FDFFFF                  call    validarFyC
+   352 00000389 4883C408                    add     rsp,8
+   353                                  
+   354 0000038D 803C25[36000000]53          cmp     byte[inputValido],'S'
+   355 00000395 0F843B050000                je      pasoValido
+   356 0000039B E937050000                  jmp     errorMovimientoZorro
+   357                                  
+   358                                  
+   359                                  
+   360                                  derechaZorro:
+   361 000003A0 4883EC08                    sub     rsp,8
+   362 000003A4 E8D4FFFFFF                  call    validarDer
+   363 000003A9 4883C408                    add     rsp,8
+   364                                  
+   365 000003AD 488B0C25[69000000]          mov     rcx,[posZorro]
+   366 000003B5 8A81[00000000]              mov     al,[matriz + rcx]
+   367 000003BB 4883C101                    add     rcx,1
+   368                                  
+   369 000003BF 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   370 000003C6 742E                        je      verSiComeDer
+   371                                  
+   372                                      ; Para verificar limites del tablero
+   373 000003C8 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   374 000003CF 0F8502050000                jne     errorMovimientoZorro
+   375                                  
+   376 000003D5 8881[00000000]              mov     byte [matriz + rcx], al
+   377 000003DB 48890C25[69000000]          mov     [posZorro], rcx
+   378 000003E3 4883E901                    sub     rcx,1
+   379 000003E7 C681[00000000]20            mov     byte [matriz + rcx],' '
+   380                                  
+   381 000003EE FE0425[7C020000]            inc     byte[turno]
+   382                                  
+   383 000003F5 C3                          ret
+   384                                  
+   385                                  verSiComeDer:
+   386 000003F6 4883EC08                    sub     rsp,8
+   387 000003FA E87EFFFFFF                  call    validarDer
+   388 000003FF 4883C408                    add     rsp,8
+   389                                  
+   390 00000403 4883C101                    add     rcx,1
+   391 00000407 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   392 0000040E 0F85C3040000                jne     errorMovimientoZorro
+   393                                  
+   394 00000414 8881[00000000]              mov     byte [matriz + rcx], al
+   395 0000041A 48890C25[69000000]          mov     [posZorro], rcx
+   396                                  
+   397 00000422 4883E901                    sub     rcx,1
+   398 00000426 C681[00000000]20            mov     byte [matriz + rcx],' '
+   399 0000042D 4883E901                    sub     rcx,1
+   400 00000431 C681[00000000]20            mov     byte [matriz + rcx],' '
+   401                                  
+   402 00000438 FE0425[7D020000]            inc     byte[ocasCapturadas]
+   403                                  
+   404 0000043F C3                          ret
+   405                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   406                                  
+   407                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   408                                  validarArriba:
+   409 00000440 66FFCF                      dec     di
+   410 00000443 4883EC08                    sub     rsp,8
+   411 00000447 E8F2FCFFFF                  call    validarFyC
+   412 0000044C 4883C408                    add     rsp,8
+   413                                  
+   414 00000450 803C25[36000000]53          cmp     byte[inputValido],'S'
+   415 00000458 0F8478040000                je      pasoValido  
+   416 0000045E E974040000                  jmp     errorMovimientoZorro
+   417                                  
+   418                                  arribaZorro:
+   419 00000463 4883EC08                    sub     rsp,8
+   420 00000467 E811FFFFFF                  call    validarDer
+   421 0000046C 4883C408                    add     rsp,8
+   422                                  
+   423 00000470 488B0C25[69000000]          mov     rcx,[posZorro]
+   424 00000478 8A81[00000000]              mov     al,[matriz + rcx]
+   425 0000047E 4883E907                    sub     rcx,7
+   426                                  
+   427 00000482 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   428 00000489 742E                        je      verSiComeArriba
+   429                                  
+   430 0000048B 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   431 00000492 0F853F040000                jne     errorMovimientoZorro
+   432                                  
+   433 00000498 8881[00000000]              mov     byte [matriz + rcx], al
+   434 0000049E 4883C107                    add     rcx,7
+   435 000004A2 48890C25[69000000]          mov     [posZorro], rcx
+   436 000004AA C681[00000000]20            mov     byte [matriz + rcx],' '
+   437                                  
+   438 000004B1 FE0425[7C020000]            inc     byte[turno]
+   439                                  
+   440 000004B8 C3                          ret
+   441                                  
+   442                                  
+   443                                  verSiComeArriba:
+   444 000004B9 4883EC08                    sub     rsp,8
+   445 000004BD E8BBFEFFFF                  call    validarDer
+   446 000004C2 4883C408                    add     rsp,8
+   447                                  
+   448 000004C6 4883E907                    sub     rcx,7
+   449 000004CA 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   450 000004D1 0F8500040000                jne     errorMovimientoZorro
+   451                                  
+   452 000004D7 8881[00000000]              mov     byte [matriz + rcx], al
+   453 000004DD 48890C25[69000000]          mov     [posZorro], rcx
+   454                                  
+   455 000004E5 4883C107                    add     rcx,7
+   456 000004E9 C681[00000000]20            mov     byte [matriz + rcx],' '
+   457 000004F0 4883C107                    add     rcx,7
+   458 000004F4 C681[00000000]20            mov     byte [matriz + rcx],' '
+   459                                  
+   460 000004FB FE0425[7D020000]            inc     byte[ocasCapturadas]
+   461                                  
+   462 00000502 C3                          ret
+   463                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   464                                  
+   465                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   466                                  validarAbajo:
+   467 00000503 66FFC7                      inc     di
+   468 00000506 4883EC08                    sub     rsp,8
+   469 0000050A E82FFCFFFF                  call    validarFyC
+   470 0000050F 4883C408                    add     rsp,8
+   471                                  
+   472 00000513 803C25[36000000]53          cmp     byte[inputValido],'S'
+   473 0000051B 0F84B5030000                je      pasoValido
+   474 00000521 E9B1030000                  jmp     errorMovimientoZorro
+   475                                  
+   476                                  abajoZorro:
+   477 00000526 4883EC08                    sub     rsp,8
+   478 0000052A E8D4FFFFFF                  call    validarAbajo
+   479 0000052F 4883C408                    add     rsp,8
+   480                                  
+   481 00000533 488B0C25[69000000]          mov     rcx,[posZorro]
+   482 0000053B 8A81[00000000]              mov     al,[matriz + rcx]
+   483 00000541 4883C107                    add     rcx,7
+   484                                  
+   485 00000545 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   486 0000054C 742E                        je      verSiComeAbajo
+   487                                  
+   488 0000054E 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   489 00000555 0F857C030000                jne     errorMovimientoZorro
+   490                                  
+   491 0000055B 8881[00000000]              mov     byte [matriz + rcx], al
+   492 00000561 4883E907                    sub     rcx,7
+   493 00000565 48890C25[69000000]          mov     [posZorro], rcx
+   494 0000056D C681[00000000]20            mov     byte [matriz + rcx],' '
+   495                                  
+   496 00000574 FE0425[7C020000]            inc     byte[turno]
+   497                                  
+   498 0000057B C3                          ret 
+   499                                  
+   500                                  verSiComeAbajo:
+   501 0000057C 4883EC08                    sub     rsp,8
+   502 00000580 E87EFFFFFF                  call    validarAbajo
+   503 00000585 4883C408                    add     rsp,8
+   504                                  
+   505 00000589 4883C107                    add     rcx,7
+   506 0000058D 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   507 00000594 0F853D030000                jne     errorMovimientoZorro
+   508                                  
+   509 0000059A 8881[00000000]              mov     byte [matriz + rcx], al
+   510 000005A0 48890C25[69000000]          mov     [posZorro], rcx
+   511                                  
+   512 000005A8 4883E907                    sub     rcx,7
+   513 000005AC C681[00000000]20            mov     byte [matriz + rcx],' '
+   514 000005B3 4883E907                    sub     rcx,7
+   515 000005B7 C681[00000000]20            mov     byte [matriz + rcx],' '
+   516                                  
+   517 000005BE FE0425[7D020000]            inc     byte[ocasCapturadas]
+   518                                  
+   519 000005C5 C3                          ret
+   520                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   521                                  
+   522                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   523                                  validarArriIzqZorro:
+   524 000005C6 66FFCF                      dec     di
+   525 000005C9 66FFCE                      dec     si
+   526 000005CC 4883EC08                    sub     rsp,8
+   527 000005D0 E869FBFFFF                  call    validarFyC
+   528 000005D5 4883C408                    add     rsp,8
+   529                                  
+   530 000005D9 803C25[36000000]53          cmp     byte[inputValido],'S'
+   531 000005E1 0F84EF020000                je      pasoValido
+   532 000005E7 E9EB020000                  jmp     errorMovimientoZorro
+   533                                  
+   534                                  
+   535                                  diagonalArribaIzqZorro:
+   536 000005EC 4883EC08                    sub     rsp,8
+   537 000005F0 E8D1FFFFFF                  call    validarArriIzqZorro
+   538 000005F5 4883C408                    add     rsp,8
+   539                                  
+   540 000005F9 488B0C25[69000000]          mov     rcx,[posZorro]
+   541 00000601 8A81[00000000]              mov     al,[matriz + rcx]
+   542 00000607 4883E908                    sub     rcx,8
+   543                                  
+   544 0000060B 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   545 00000612 742E                        je     verSiComeArriIzqZorro
+   546                                  
+   547 00000614 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   548 0000061B 0F85B6020000                jne     errorMovimientoZorro
+   549                                  
+   550 00000621 8881[00000000]              mov     byte [matriz + rcx], al
+   551 00000627 4883C108                    add     rcx,8
+   552 0000062B 48890C25[69000000]          mov     [posZorro], rcx
+   553 00000633 C681[00000000]20            mov     byte [matriz + rcx],' '
+   554                                  
+   555 0000063A FE0425[7C020000]            inc     byte[turno]
+   556                                  
+   557 00000641 C3                          ret 
+   558                                  
+   559                                  verSiComeArriIzqZorro:
+   560 00000642 4883EC08                    sub     rsp,8
+   561 00000646 E87BFFFFFF                  call    validarArriIzqZorro
+   562 0000064B 4883C408                    add     rsp,8
+   563                                  
+   564 0000064F 4883E908                    sub     rcx,8
+   565 00000653 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   566 0000065A 0F8577020000                jne     errorMovimientoZorro
+   567                                  
+   568 00000660 8881[00000000]              mov     byte [matriz + rcx], al
+   569 00000666 48890C25[69000000]          mov     [posZorro], rcx
+   570                                  
+   571 0000066E 4883C108                    add     rcx,8
+   572 00000672 C681[00000000]20            mov     byte [matriz + rcx],' '
+   573 00000679 4883C108                    add     rcx,8
+   574 0000067D C681[00000000]20            mov     byte [matriz + rcx],' '
+   575                                  
+   576 00000684 FE0425[7D020000]            inc     byte[ocasCapturadas]
+   577                                  
+   578 0000068B C3                          ret
+   579                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   580                                  
+   581                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   582                                  validarArriDerZorro:
+   583 0000068C 66FFCF                      dec     di
+   584 0000068F 66FFC6                      inc     si
+   585 00000692 4883EC08                    sub     rsp,8
+   586 00000696 E8A3FAFFFF                  call    validarFyC
+   587 0000069B 4883C408                    add     rsp,8
+   588                                  
+   589 0000069F 803C25[36000000]53          cmp     byte[inputValido],'S'
+   590 000006A7 0F8429020000                je      pasoValido
+   591 000006AD E925020000                  jmp     errorMovimientoZorro
+   592                                  
+   593                                  diagonalArribaDerZorro:
+   594 000006B2 4883EC08                    sub     rsp,8
+   595 000006B6 E8D1FFFFFF                  call    validarArriDerZorro
+   596 000006BB 4883C408                    add     rsp,8
+   597                                  
+   598 000006BF 488B0C25[69000000]          mov     rcx,[posZorro]
+   599 000006C7 8A81[00000000]              mov     al,[matriz + rcx]
+   600 000006CD 4883E906                    sub     rcx,6
+   601                                  
+   602 000006D1 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   603 000006D8 742E                        je     verSiComeArriDerZorro
+   604                                  
+   605 000006DA 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   606 000006E1 0F85F0010000                jne     errorMovimientoZorro
+   607                                  
+   608 000006E7 8881[00000000]              mov     byte [matriz + rcx], al
+   609 000006ED 4883C106                    add     rcx,6
+   610 000006F1 48890C25[69000000]          mov     [posZorro], rcx
+   611 000006F9 C681[00000000]20            mov     byte [matriz + rcx],' '
+   612                                  
+   613 00000700 FE0425[7C020000]            inc     byte[turno]
+   614                                  
+   615 00000707 C3                          ret 
+   616                                  
+   617                                  verSiComeArriDerZorro:
+   618 00000708 4883EC08                    sub     rsp,8
+   619 0000070C E8B5FEFFFF                  call    validarArriIzqZorro
+   620 00000711 4883C408                    add     rsp,8
+   621                                  
+   622 00000715 4883E906                    sub     rcx,6
+   623 00000719 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   624 00000720 0F85B1010000                jne     errorMovimientoZorro
+   625                                  
+   626 00000726 8881[00000000]              mov     byte [matriz + rcx], al
+   627 0000072C 48890C25[69000000]          mov     [posZorro], rcx
+   628                                  
+   629 00000734 4883C106                    add     rcx,6
+   630 00000738 C681[00000000]20            mov     byte [matriz + rcx],' '
+   631 0000073F 4883C106                    add     rcx,6
+   632 00000743 C681[00000000]20            mov     byte [matriz + rcx],' '
+   633                                  
+   634 0000074A FE0425[7D020000]            inc     byte[ocasCapturadas]
+   635                                  
+   636 00000751 C3                          ret
+   637                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   638                                  
+   639                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   640                                  validarAbajoIzqZorro:
+   641 00000752 66FFC7                      inc     di
+   642 00000755 66FFCE                      dec     si
+   643 00000758 4883EC08                    sub     rsp,8
+   644 0000075C E8DDF9FFFF                  call    validarFyC
+   645 00000761 4883C408                    add     rsp,8
+   646                                  
+   647 00000765 803C25[36000000]53          cmp     byte[inputValido],'S'
+   648 0000076D 0F8463010000                je      pasoValido
+   649 00000773 E95F010000                  jmp     errorMovimientoZorro
+   650                                  
+   651                                  diagonalAbajoIzqZorro:
+   652 00000778 4883EC08                    sub     rsp,8
+   653 0000077C E8D1FFFFFF                  call    validarAbajoIzqZorro
+   654 00000781 4883C408                    add     rsp,8
+   655                                  
+   656 00000785 488B0C25[69000000]          mov     rcx,[posZorro]
+   657 0000078D 8A81[00000000]              mov     al,[matriz + rcx]
+   658 00000793 4883C106                    add     rcx,6
+   659                                  
+   660 00000797 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   661 0000079E 742E                        je     verSiComeAbajoIzqZorro
+   662                                  
+   663 000007A0 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   664 000007A7 0F852A010000                jne     errorMovimientoZorro
+   665                                  
+   666 000007AD 8881[00000000]              mov     byte [matriz + rcx], al
+   667 000007B3 4883E906                    sub     rcx,6
+   668 000007B7 48890C25[69000000]          mov     [posZorro], rcx
+   669 000007BF C681[00000000]20            mov     byte [matriz + rcx],' '
+   670                                  
+   671 000007C6 FE0425[7C020000]            inc     byte[turno]
+   672                                  
+   673 000007CD C3                          ret 
+   674                                  
+   675                                  verSiComeAbajoIzqZorro:
+   676 000007CE 4883EC08                    sub     rsp,8
+   677 000007D2 E8EFFDFFFF                  call    validarArriIzqZorro
+   678 000007D7 4883C408                    add     rsp,8
+   679                                  
+   680 000007DB 4883C106                    add     rcx,6
+   681 000007DF 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   682 000007E6 0F85EB000000                jne     errorMovimientoZorro
+   683                                  
+   684 000007EC 8881[00000000]              mov     byte [matriz + rcx], al
+   685 000007F2 48890C25[69000000]          mov     [posZorro], rcx
+   686                                  
+   687 000007FA 4883E906                    sub     rcx,6
+   688 000007FE C681[00000000]20            mov     byte [matriz + rcx],' '
+   689 00000805 4883E906                    sub     rcx,6
+   690 00000809 C681[00000000]20            mov     byte [matriz + rcx],' '
+   691                                  
+   692 00000810 FE0425[7D020000]            inc     byte[ocasCapturadas]
+   693                                  
+   694 00000817 C3                          ret
+   695                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   696                                  
+   697                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   698                                  validarAbajoDerZorro:
+   699 00000818 66FFC7                      inc     di
+   700 0000081B 66FFC6                      inc     si
+   701 0000081E 4883EC08                    sub     rsp,8
+   702 00000822 E817F9FFFF                  call    validarFyC
+   703 00000827 4883C408                    add     rsp,8
+   704                                  
+   705 0000082B 803C25[36000000]53          cmp     byte[inputValido],'S'
+   706 00000833 0F849D000000                je      pasoValido
+   707 00000839 E999000000                  jmp     errorMovimientoZorro
+   708                                  
+   709                                  diagonalAbajoDerZorro:
+   710 0000083E 4883EC08                    sub     rsp,8
+   711 00000842 E8D1FFFFFF                  call    validarAbajoDerZorro
+   712 00000847 4883C408                    add     rsp,8
+   713                                  
+   714 0000084B 488B0C25[69000000]          mov     rcx,[posZorro]
+   715 00000853 8A81[00000000]              mov     al,[matriz + rcx]
+   716 00000859 4883C108                    add     rcx,8
+   717                                  
+   718 0000085D 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   719 00000864 742A                        je     verSiComeAbajoDerZorro
+   720                                  
+   721 00000866 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   722 0000086D 7568                        jne     errorMovimientoZorro
+   723                                  
+   724 0000086F 8881[00000000]              mov     byte [matriz + rcx], al
+   725 00000875 4883E908                    sub     rcx,8
+   726 00000879 48890C25[69000000]          mov     [posZorro], rcx
+   727 00000881 C681[00000000]20            mov     byte [matriz + rcx],' '
+   728                                  
+   729 00000888 FE0425[7C020000]            inc     byte[turno]
+   730                                  
+   731 0000088F C3                          ret 
+   732                                  
+   733                                  verSiComeAbajoDerZorro:
+   734 00000890 4883EC08                    sub     rsp,8
+   735 00000894 E82DFDFFFF                  call    validarArriIzqZorro
+   736 00000899 4883C408                    add     rsp,8
+   737                                  
+   738 0000089D 4883C108                    add     rcx,8
+   739 000008A1 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   740 000008A8 752D                        jne     errorMovimientoZorro
+   741                                  
+   742 000008AA 8881[00000000]              mov     byte [matriz + rcx], al
+   743 000008B0 48890C25[69000000]          mov     [posZorro], rcx
+   744                                  
+   745 000008B8 4883E908                    sub     rcx,8
+   746 000008BC C681[00000000]20            mov     byte [matriz + rcx],' '
+   747 000008C3 4883E908                    sub     rcx,8
+   748 000008C7 C681[00000000]20            mov     byte [matriz + rcx],' '
+   749                                  
+   750 000008CE FE0425[7D020000]            inc     byte[ocasCapturadas]
+   751                                  
+   752 000008D5 C3                          ret
+   753                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   754                                  pasoValido:
+   755 000008D6 C3                          ret
+   756                                  
+   757                                  errorMovimientoZorro:
+   758 000008D7 48BF-                       mov     rdi,msjError
+   758 000008D9 [F401000000000000] 
+   759                                      mPuts 
+    23 000008E1 4883EC08            <1>  sub rsp,8
+    24 000008E5 E8(00000000)        <1>  call puts
+    25 000008EA 4883C408            <1>  add rsp,8
+   760 000008EE E989F7FFFF                  jmp     errorMovZorro
+   761                                  
+   762                                  
+   763                                  
+   764                                  
+   765                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   766                                  ; MOVIMIENTO DE LAS OCAS.
+   767                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   768                                  turnoOcas:
+   769 000008F3 4883EC08                    sub     rsp,8
+   770 000008F7 E805000000                  call    movimientoOca
+   771 000008FC 4883C408                    add     rsp,8   
+   772                                  
+   773 00000900 C3                          ret
+   774                                  
+   775                                  movimientoOca:
+   776                                      ; Pido una oca del tablero.
+   777 00000901 4883EC08                    sub     rsp,8
+   778 00000905 E863000000                  call    obtener_pos_ocas
+   779 0000090A 4883C408                    add     rsp,8
+   780                                  
+   781                                      ; Pido un movimiento para la oca seleccionada.
+   782 0000090E 48BF-                       mov     rdi,msjMovimientoOcas
+   782 00000910 [DF00000000000000] 
+   783                                      mPuts                       
+    23 00000918 4883EC08            <1>  sub rsp,8
+    24 0000091C E8(00000000)        <1>  call puts
+    25 00000921 4883C408            <1>  add rsp,8
+   784 00000925 48BF-                       mov     rdi,inputMov
+   784 00000927 [3700000000000000] 
+   785                                      mGets
+    17 0000092F 4883EC08            <1>  sub rsp,8
+    18 00000933 E8(00000000)        <1>  call gets
+    19 00000938 4883C408            <1>  add rsp,8
+   786                                  
+   787                                      ; Valido entrada.
+   788 0000093C 4831C9                      xor     rcx,rcx
+   789 0000093F 4831C0                      xor     rax,rax
+   790 00000942 803C25[37000000]41          cmp     byte[inputMov],'A'
+   791 0000094A 0F844A010000                je      izquierdaOca
+   792                                  
+   793 00000950 803C25[37000000]44          cmp     byte[inputMov],'D'
+   794 00000958 0F847C010000                je      derechaOca
+   795                                  
+   796 0000095E 803C25[37000000]53          cmp     byte[inputMov],'S'
+   797 00000966 0F84AA010000                je      abajoOca
+   798                                  
+   799 0000096C C3                          ret
+   800                                  
+   801                                  ; Obtengo una pos de alguna oca de tablero de juego.
+   802                                  obtener_pos_ocas:
+   803 0000096D 48BF-                   	mov		rdi,msjIngFilCol
+   803 0000096F [0D01000000000000] 
+   804                                  	call	mPrintf
+   804                              <1>  call :
+    11 00000977 4883EC08            <1>  sub rsp,8
+    12 0000097B E8(00000000)        <1>  call printf
+    13 00000980 4883C408            <1>  add rsp,8
+   805                                  
+   806 00000984 48BF-                       mov		rdi,inputFilCol	
+   806 00000986 [0000000000000000] 
+   807                                      mGets    
+    17 0000098E 4883EC08            <1>  sub rsp,8
+    18 00000992 E8(00000000)        <1>  call gets
+    19 00000997 4883C408            <1>  add rsp,8
+   808                                  
+   809                                      ; Valido la entrada de fila y columna.
+   810 0000099B 4883EC08                    sub     rsp,8
+   811 0000099F E87B000000                  call    validarEntradaFyC
+   812 000009A4 4883C408                    add     rsp,8
+   813                                  
+   814 000009A8 4829FF                      sub     rdi,rdi
+   815 000009AB 4829F6                      sub     rsi,rsi
+   816                                  
+   817                                      ; Guardo la posicion X e Y de la oca seleccionada
+   818 000009AE 488B3C25[32000000]          mov     rdi,[filOca]
+   819 000009B6 488B3425[34000000]          mov     rsi,[colOca]
+   820                                  
+   821 000009BE 4883EC08                    sub     rsp,8
+   822 000009C2 E877F7FFFF                  call    validarFyC
+   823 000009C7 4883C408                    add     rsp,8
+   824                                  
+   825 000009CB 803C25[36000000]53          cmp     byte[inputValido],'S'
+   826 000009D3 741C                        je      continuar
+   827                                  
+   828 000009D5 48BF-                       mov     rdi,msjErrorInput
+   828 000009D7 [7801000000000000] 
+   829                                      mPuts
+    23 000009DF 4883EC08            <1>  sub rsp,8
+    24 000009E3 E8(00000000)        <1>  call puts
+    25 000009E8 4883C408            <1>  add rsp,8
+   830                                  
+   831 000009EC E97CFFFFFF                  jmp     obtener_pos_ocas
+   832                                  
+   833                                  
+   834                                  continuar:
+   835 000009F1 4883EC08                    sub     rsp,8
+   836 000009F5 E865000000                  call    calcDesplaz
+   837 000009FA 4883C408                    add     rsp,8
+   838                                  
+   839 000009FE 4D31C0                      xor     r8,r8
+   840 00000A01 66448B0425-                 mov     r8w,[desplazOca]
+   840 00000A06 [7F020000]         
+   841                                  
+   842 00000A0A 4831F6                      xor     rsi,rsi
+   843 00000A0D 418AB0[00000000]        	mov		sil,byte[matriz+r8]
+   844 00000A14 4080FE4F                    cmp     sil,'O'
+   845 00000A18 0F8550010000                jne     noOca
+   846                                  
+   847                                  
+   848 00000A1E C3                          ret
+   849                                  
+   850                                  
+   851                                  validarEntradaFyC:
+   852 00000A1F 48BF-                       mov     rdi,inputFilCol
+   852 00000A21 [0000000000000000] 
+   853 00000A29 48BE-                       mov     rsi,formatInputFilCol
+   853 00000A2B [6B02000000000000] 
+   854 00000A33 48BA-                       mov     rdx,filOca
+   854 00000A35 [3200000000000000] 
+   855 00000A3D 48B9-                       mov     rcx,colOca
+   855 00000A3F [3400000000000000] 
+   856                                  
+   857 00000A47 4883EC08                	sub		rsp,8
+   858 00000A4B E8(00000000)            	call	sscanf
+   859 00000A50 4883C408                	add		rsp,8  
+   860                                  
+   861 00000A54 4883F802                    cmp     rax,2
+   862 00000A58 0F8C08F7FFFF                jl      invalido
+   863                                  
+   864 00000A5E C3                          ret
+   865                                  
+   866                                  
+   867                                  
+   868                                  calcDesplaz:
+   869 00000A5F 66C70425[7F020000]-         mov     word[desplazOca],0
+   869 00000A67 0000               
+   870 00000A69 668B0425[32000000]      	mov		ax,[filOca]			;ax = fil
+   871 00000A71 66FFC8                  	dec		ax						;fil-1
+   872 00000A74 666BC001                	imul	ax,LONG_ELEM	;(fil-1) * longElem
+   873 00000A78 666BC007                	imul	ax,CANT_COL	;(fil-1) * longElem * cantCol = (fil-1) * longFil
+   874                                  
+   875 00000A7C 6689C3                  	mov		bx,ax				;bx = desplazOca en fil
+   876                                  	
+   877 00000A7F 668B0425[34000000]      	mov		ax,[colOca]			;ax = col
+   878 00000A87 66FFC8                  	dec		ax						;col-1
+   879 00000A8A 666BC001                	imul	ax,LONG_ELEM	;(col-1) * longElem
+   880                                  
+   881 00000A8E 6601C3                  	add		bx,ax				;bx = desplazOca total
+   882                                  
+   883 00000A91 66011C25[7F020000]          add     word[desplazOca], bx
+   884                                  
+   885 00000A99 C3                          ret
+   886                                  
+   887                                  
+   888                                  
+   889                                  
+   890                                  
+   891                                  
+   892                                  
+   893                                  
+   894                                  
+   895                                  izquierdaOca:
+   896 00000A9A 668B0C25[7F020000]          mov     cx,[desplazOca]
+   897 00000AA2 8A81[00000000]              mov     al,[matriz + rcx]
+   898 00000AA8 4883E901                    sub     rcx,1
+   899 00000AAC 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   900 00000AB3 0F8599000000                jne     errorMovimientoOca
+   901                                  
+   902 00000AB9 8881[00000000]              mov     byte [matriz + rcx], al
+   903 00000ABF 48890C25[7F020000]          mov     [desplazOca], rcx
+   904 00000AC7 4883C101                    add     rcx,1
+   905 00000ACB C681[00000000]20            mov     byte [matriz + rcx],' '
+   906                                  
+   907 00000AD2 FE0C25[7C020000]            dec     byte[turno]
+   908                                  
+   909 00000AD9 C3                          ret
+   910                                  
+   911                                  
+   912                                  derechaOca:
+   913 00000ADA 668B0C25[7F020000]          mov     cx,[desplazOca]
+   914 00000AE2 8A81[00000000]              mov     al,[matriz + rcx]
+   915 00000AE8 4883C101                    add     rcx,1
+   916 00000AEC 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   917 00000AF3 755D                        jne     errorMovimientoOca
+   918                                  
+   919 00000AF5 8881[00000000]              mov     byte [matriz + rcx], al
+   920 00000AFB 48890C25[7F020000]          mov     [desplazOca], rcx
+   921 00000B03 4883E901                    sub     rcx,1
+   922 00000B07 C681[00000000]20            mov     byte [matriz + rcx],' '
+   923                                  
+   924 00000B0E FE0C25[7C020000]            dec     byte[turno]
+   925 00000B15 C3                          ret
+   926                                  
+   927                                  
+   928                                  abajoOca:
+   929 00000B16 668B0C25[7F020000]          mov     cx,[desplazOca]
+   930 00000B1E 8A81[00000000]              mov     al,[matriz + rcx]
+   931 00000B24 4883C107                    add     rcx,7
+   932 00000B28 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   933 00000B2F 7521                        jne     errorMovimientoOca
+   934                                  
+   935 00000B31 8881[00000000]              mov     byte [matriz + rcx], al
+   936 00000B37 4883E907                    sub     rcx,7
+   937 00000B3B 48890C25[7F020000]          mov     [desplazOca], rcx
+   938 00000B43 C681[00000000]20            mov     byte [matriz + rcx],' '
+   939 00000B4A FE0C25[7C020000]            dec     byte[turno]    
+   940 00000B51 C3                          ret 
+   941                                  
+   942                                  
+   943                                  
+   944                                  errorMovimientoOca:
+   945 00000B52 48BF-                       mov     rdi,msjError
+   945 00000B54 [F401000000000000] 
+   946                                      mPuts 
+    23 00000B5C 4883EC08            <1>  sub rsp,8
+    24 00000B60 E8(00000000)        <1>  call puts
+    25 00000B65 4883C408            <1>  add rsp,8
+   947 00000B69 E9A6F5FFFF                  jmp      errorMovOca
+   948                                  
+   949                                  noOca:
+   950 00000B6E 48BF-                       mov     rdi,msjNoHayOca
+   950 00000B70 [B101000000000000] 
+   951                                      mPuts
+    23 00000B78 4883EC08            <1>  sub rsp,8
+    24 00000B7C E8(00000000)        <1>  call puts
+    25 00000B81 4883C408            <1>  add rsp,8
+   952 00000B85 E98AF5FFFF                  jmp     errorMovOca

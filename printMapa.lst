@@ -24,106 +24,100 @@
     24                                  
     25                                  
     26                                  section	.data
-    27 00000000 200A00                      separador           db  " ",10,0
-    28 00000003 7C25637C00                  char                db  "|%c|",0
-    29 00000008 7C256868697C2000            charNum             db  "|%hhi| ",0    
-    30 00000010 0A00                        newline             db  10,0                                ;OJO LOS DATOS SIEMPRE ORDENADOS POR CATEGORIA POR QUE PUEDE DAR ERROR SI NO XD
-    31 00000012 07                          longFila            db  7                                   ;PARA TESTEAR EN GDB PUEDEN PONER LOS BREAKPOINT EMPEZANDO POR OTRAS PARTES,
-    32                                  
-    33 00000013 01                          nFil                db  1
-    34                                      
-    35 00000014 00                          contador            db  0
-    36                                      
-    37                                  
-    38                                  section	.bss
-    39 00000000 <res 31h>                   matriz  		    resb	49
+    27 00000000 2D2D2D2D2D2D2D2D2D-         separador           db  "---------------------",10,0
+    27 00000009 2D2D2D2D2D2D2D2D2D-
+    27 00000012 2D2D2D0A00         
+    28 00000017 7C25637C00                  char                db  "|%c|",0
+    29 0000001C 7C256868697C2000            charNum             db  "|%hhi| ",0    
+    30                                      
+    31 00000024 0A00                        newline             db  10,0                               
+    32 00000026 07                          longFila            db  7                               
+    33 00000027 01                          nFil                db  1
+    34 00000028 00                          contador            db  0
+    35                                      
+    36                                  
+    37                                  section	.bss
+    38 00000000 <res 64h>                   matriz  		    resb	100
+    39                                  
     40                                  
-    41                                  
-    42                                  section .text
-    43                                  printMapa:
-    44 00000000 4889FE                      mov     rsi,rdi
-    45 00000003 48BF-                       mov     rdi, matriz
-    45 00000005 [0000000000000000] 
-    46 0000000D B931000000                  mov     rcx,49
-    47 00000012 F3A4                        rep     movsb
-    48                                  
-    49 00000014 4829C9                      sub     rcx,rcx
-    50 00000017 4829F6                      sub     rsi,rsi
-    51 0000001A 4829FF                      sub     rdi,rdi 
-    52                                  
-    53 0000001D 48BF-                       mov     rdi,separador
-    53 0000001F [0000000000000000] 
+    41                                  section .text
+    42                                  printMapa:
+    43 00000000 4889FE                      mov     rsi,rdi
+    44 00000003 48BF-                       mov     rdi, matriz
+    44 00000005 [0000000000000000] 
+    45 0000000D B931000000                  mov     rcx,49
+    46 00000012 F3A4                        rep     movsb
+    47                                  
+    48 00000014 4829C9                      sub     rcx,rcx
+    49 00000017 4829F6                      sub     rsi,rsi
+    50 0000001A 4829FF                      sub     rdi,rdi 
+    51                                  
+    52 0000001D 48BF-                       mov     rdi,charNum
+    52 0000001F [1C00000000000000] 
+    53 00000027 408A3425[27000000]          mov     sil,[nFil]
     54                                      mPrintf
-    20 00000027 4883EC08            <1>  sub rsp, 8
-    21 0000002B E8(00000000)        <1>  call printf
-    22 00000030 4883C408            <1>  add rsp, 8
-    55                                  
-    56 00000034 48BF-                       mov     rdi,charNum
-    56 00000036 [0800000000000000] 
-    57 0000003E 408A3425[13000000]          mov     sil,[nFil]
-    58                                      mPrintf
-    20 00000046 4883EC08            <1>  sub rsp, 8
-    21 0000004A E8(00000000)        <1>  call printf
-    22 0000004F 4883C408            <1>  add rsp, 8
-    59 00000053 FE0425[13000000]            inc     byte[nFil]
-    60                                  
+    20 0000002F 4883EC08            <1>  sub rsp, 8
+    21 00000033 E8(00000000)        <1>  call printf
+    22 00000038 4883C408            <1>  add rsp, 8
+    55 0000003C FE0425[27000000]            inc     byte[nFil]
+    56                                  
+    57                                  
+    58 00000043 4883EC08                    sub     rsp,8
+    59 00000047 E805000000                  call    imprimir
+    60 0000004C 4883C408                    add     rsp,8
     61                                  
-    62 0000005A 4883EC08                    sub     rsp,8
-    63 0000005E E805000000                  call    imprimir
-    64 00000063 4883C408                    add     rsp,8
-    65                                  
-    66 00000067 C3                          ret
-    67                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMPRIME MATRIZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-    68                                  imprimir:           
-    69 00000068 4831C9                      xor     rcx,rcx                                              
-    70 0000006B 48BF-                       mov     rdi,char
-    70 0000006D [0300000000000000] 
-    71 00000075 668B0C25[14000000]          mov     cx,[contador]
-    72 0000007D 488BB1[00000000]            mov     rsi,[matriz + rcx]              ;;; EL PROBLEMA DEL RCX ES QUE CUANDO LLAMAS A PRINTF COMO LO USA EN SUS PARAMETROS LO LLENA DE KK(ARREGLAR LUEGO)
-    73                                      mPrintf
-    20 00000084 4883EC08            <1>  sub rsp, 8
-    21 00000088 E8(00000000)        <1>  call printf
-    22 0000008D 4883C408            <1>  add rsp, 8
-    74                                      
-    75 00000091 FE0425[14000000]            inc     byte[contador]
+    62 00000050 C3                          ret
+    63                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMPRIME MATRIZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+    64                                  imprimir:           
+    65 00000051 4831C9                      xor     rcx,rcx                                              
+    66 00000054 48BF-                       mov     rdi,char
+    66 00000056 [1700000000000000] 
+    67 0000005E 668B0C25[28000000]          mov     cx,[contador]
+    68 00000066 488BB1[00000000]            mov     rsi,[matriz + rcx]              ;;; EL PROBLEMA DEL RCX ES QUE CUANDO LLAMAS A PRINTF COMO LO USA EN SUS PARAMETROS LO LLENA DE KK(ARREGLAR LUEGO)
+    69                                      mPrintf
+    20 0000006D 4883EC08            <1>  sub rsp, 8
+    21 00000071 E8(00000000)        <1>  call printf
+    22 00000076 4883C408            <1>  add rsp, 8
+    70                                      
+    71 0000007A FE0425[28000000]            inc     byte[contador]
+    72                                  
+    73                                      ; Cada 7 elementos \n
+    74 00000081 668B0425[28000000]          mov     ax,[contador]
+    75 00000089 F63C25[26000000]            idiv    byte[longFila]
     76                                  
-    77                                      ; Cada 7 elementos \n
-    78 00000098 668B0425[14000000]          mov     ax,[contador]
-    79 000000A0 F63C25[12000000]            idiv    byte[longFila]
-    80                                  
-    81 000000A7 80FC00                      cmp     ah,0
-    82 000000AA 7402                        je      nuevaLinea
-    83                                  
-    84 000000AC EBBA                        jmp     imprimir
+    77 00000090 80FC00                      cmp     ah,0
+    78 00000093 7402                        je      nuevaLinea
+    79                                  
+    80 00000095 EBBA                        jmp     imprimir
+    81                                  
+    82                                  nuevaLinea:
+    83 00000097 48BF-                       mov     rdi, newline   
+    83 00000099 [2400000000000000] 
+    84                                      mPrintf
+    20 000000A1 4883EC08            <1>  sub rsp, 8
+    21 000000A5 E8(00000000)        <1>  call printf
+    22 000000AA 4883C408            <1>  add rsp, 8
     85                                  
-    86                                  nuevaLinea:
-    87 000000AE 48BF-                       mov     rdi, newline   
-    87 000000B0 [1000000000000000] 
-    88                                      mPrintf
-    20 000000B8 4883EC08            <1>  sub rsp, 8
-    21 000000BC E8(00000000)        <1>  call printf
-    22 000000C1 4883C408            <1>  add rsp, 8
-    89                                  
-    90 000000C5 4829FF                      sub     rdi,rdi
-    91 000000C8 4829F6                      sub     rsi,rsi
-    92 000000CB 48BF-                       mov     rdi,charNum
-    92 000000CD [0800000000000000] 
-    93 000000D5 408A3425[13000000]          mov     sil,[nFil]
-    94 000000DD 4080FE08                    cmp     sil,8
-    95 000000E1 7414                        je      continuar
-    96                                      mPrintf
-    20 000000E3 4883EC08            <1>  sub rsp, 8
-    21 000000E7 E8(00000000)        <1>  call printf
-    22 000000EC 4883C408            <1>  add rsp, 8
-    97 000000F0 FE0425[13000000]            inc     byte[nFil]
-    98                                  
-    99                                  continuar:
-   100 000000F7 803C25[14000000]31          cmp     byte[contador],49
-   101 000000FF 7405                        je      finLoop
-   102 00000101 E962FFFFFF                  jmp     imprimir  
+    86 000000AE 4829FF                      sub     rdi,rdi
+    87 000000B1 4829F6                      sub     rsi,rsi
+    88 000000B4 48BF-                       mov     rdi,charNum
+    88 000000B6 [1C00000000000000] 
+    89 000000BE 408A3425[27000000]          mov     sil,[nFil]
+    90 000000C6 4080FE08                    cmp     sil,8
+    91 000000CA 7414                        je      continuar
+    92                                      mPrintf
+    20 000000CC 4883EC08            <1>  sub rsp, 8
+    21 000000D0 E8(00000000)        <1>  call printf
+    22 000000D5 4883C408            <1>  add rsp, 8
+    93 000000D9 FE0425[27000000]            inc     byte[nFil]
+    94                                  
+    95                                  continuar:
+    96 000000E0 803C25[28000000]31          cmp     byte[contador],49
+    97 000000E8 7405                        je      finLoop
+    98 000000EA E962FFFFFF                  jmp     imprimir  
+    99                                  
+   100                                  finLoop:
+   101 000000EF C60425[28000000]00          mov     byte[contador],0
+   102 000000F7 C60425[27000000]01          mov     byte[nFil],1
    103                                  
-   104                                  finLoop:
-   105 00000106 C60425[14000000]00          mov     byte[contador],0
-   106 0000010E C60425[13000000]01          mov     byte[nFil],1
-   107                                  
-   108 00000116 C3                          ret
+   104 000000FF C3                          ret

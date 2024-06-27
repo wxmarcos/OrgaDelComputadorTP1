@@ -6,7 +6,6 @@ extern  sscanf
 extern  printMapa
 extern  system
 
-
 %macro mPrintf 0 
     sub     rsp,8
     call    printf
@@ -25,15 +24,53 @@ extern  system
     add     rsp,8
 %endmacro
 
+%macro mHayOca 0 
+    sub     rsp,8
+    call    hayOca
+    add     rsp,8
+%endmacro
+
+%macro mValidarFyC 0 
+    sub     rsp,8
+    call    validarFyC
+    add     rsp,8
+%endmacro
+
+%macro mCasilleroVacio 0 
+    sub     rsp,8
+    call    casilleroVacio
+    add     rsp,8
+%endmacro
+
+%macro mValidarLimTablero 0 
+    mValidarFyC
+    cmp     byte[inputValido],'S'
+    jne     errorMovimientoZorro
+%endmacro
+
+%macro mValidarLimAcorralamiento 0 
+    mValidarFyC
+    cmp     byte[inputValido],'S'
+%endmacro
+
+%macro mLimpieza 0 
+    xor     rcx,rcx
+    xor     rax,rax
+    xor     rdi,rdi
+    xor     rsi,rsi 
+%endmacro
+
+
+
 
 section	.data
     matriz      db  "#","#","O","O","O","#","#"
                 db  "#","#","O","O","O","#","#"
                 db  "O","O","O","O","O","O","O"
-                db  "O"," "," ","X"," "," ","O"
                 db  "O"," "," "," "," "," ","O"
-                db  "#","#"," "," "," ","#","#"
-                db  "#","#"," "," "," ","#","#"
+                db  "O","O","O","X"," "," ","O"
+                db  "#","#"," "," "," "," ","#"
+                db  "#","#"," "," "," ","#","#",0
                                 
     msgMovimientoZorro  db  "Ingresar W (arriba), A (izquierda), S (abajo), D (derecha), Q (diagonal sup izq), E (diagonal sup der), Z (diagonal inf izq), C (diagonal inf der) o X (para guardar y salir)",0
     msjMovimientoOcas   db  "Ingrese A (izquierda), S (abajo), D (derecha)",0
@@ -43,7 +80,7 @@ section	.data
     msjOcasCapturadas   db  "Cantidad de ocas capturadas: %hhi",10,0
     msjError            db  "Error de movimiento",0
 
-    columnas            db  "    |1||2||3||4||5||6||7|",0
+    columnas            db  "    |1||2||3||4||5||6||7|",0 
     separador           db  "    ---------------------",0
 
     msjGanaZorro        db  10,"¡¡¡Gana el Zorro por capturar 12 ocas!!!",10,10,0   
@@ -51,9 +88,9 @@ section	.data
     formatInputFilCol	db	"%hhi %hhi",0  
     cmdClear            db  "clear",0
 
-    contador            db  0
-    turno               db  0
-    ocasCapturadas      db  0
+    contador            dw  0
+    turno               dw  0
+    ocasCapturadas      dw  0
 
 	LONG_ELEM	        equ	1
 	CANT_FIL	        equ	7
@@ -72,6 +109,7 @@ section .bss
     posZorro                resb    100
     posZorroCol             resb    1
     posZorroFil             resb    1
+    completoMovZorro        resb    1   ;S completo movimiento correctamente y N para no.
 
 
 
@@ -79,20 +117,21 @@ section .text
 
 main:
     ; Limpia la pantalla
-    mov     rdi,cmdClear
-    sub		rsp,8	
-    call    system    
-	add		rsp,8	
+    ; mov     rdi,cmdClear
+    ; sub		rsp,8	
+    ; call    system    
+	; add		rsp,8	
+
+    jmp     estaAcorralado
+
 
     ; Printea el mapa actualizado
     mov     rdi, columnas
     mPuts
     mov     rdi, separador
     mPuts
-
     xor     rdi,rdi
-    lea     rdi,[matriz]
-
+    mov     rdi,matriz
     sub		rsp,8	
     call    printMapa    
 	add		rsp,8	
@@ -114,9 +153,9 @@ comioZorro:
     mPuts
     mov     rdi, separador
     mPuts
+
     xor     rdi,rdi
     mov     rdi,matriz
-
     sub		rsp,8	
     call    printMapa    
 	add		rsp,8
@@ -125,13 +164,11 @@ comioZorro:
     mov     sil, [ocasCapturadas]
     mPrintf
 
-
     ; Chequea condicion de fin.
     sub     rdi,rdi
     mov     dil,[ocasCapturadas]
     cmp     dil,12
     je      fin
-
 
     xor     rcx,rcx
     mov     cl,byte[turno]
@@ -193,11 +230,20 @@ turnoZorro:
     call    movimientoZorro   
     add     rsp,8
 
+    cmp     byte[completoMovZorro],'S'
+    je      completoMovConExito
+
+    mov     rdi,msjError
+    mPuts 
+    jmp     turnoZorro
+
+; Fin del turno zorro.
+completoMovConExito:
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Ç
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; BUCAR LA POSICION ACTUAL DEL ZORRO.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 buscarZorro:
     mov     byte[contador],0
 
@@ -254,7 +300,6 @@ movimientoZorro:
     mov     sil,[posZorroCol]
     mov     dil,[posZorroFil]
 
-
     cmp     byte[inputMov],'A'
     je      izquierdaZorro
 
@@ -286,32 +331,28 @@ movimientoZorro:
     ret
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                        MOVIMIENTOS DEL ZORRO.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; MOVIMIENTOS DEL ZORRO.
+; MOVER A LA IZQUIERDA.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarIzq:
-    dec     si 
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
 izquierdaZorro:
-    sub     rsp,8
-    call    validarIzq
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     si 
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     sub     rcx,1
 
-    cmp     byte [matriz + rcx],'O'
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
     je      verSiComeIzq
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -321,15 +362,17 @@ izquierdaZorro:
 
     inc     byte[turno]
 
-    ret
+    jmp     movValido
 
 verSiComeIzq:
-    sub     rsp,8
-    call    validarIzq
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     si 
+    mValidarLimTablero
 
+    ; Valida si es un casillero distinto de vacio.
     sub     rcx,1
-    cmp     byte [matriz + rcx],' '
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -342,36 +385,27 @@ verSiComeIzq:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarDer:
-    inc     si 
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER A LA DERECHA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 derechaZorro:
-    sub     rsp,8
-    call    validarDer
-    add     rsp,8
+   ; Validar si no me voy fuera de los limites del talero.
+    inc     si 
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     add     rcx,1
 
-    cmp     byte [matriz + rcx],'O'
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
     je      verSiComeDer
-
-    ; Para verificar limites del tablero
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -381,15 +415,17 @@ derechaZorro:
 
     inc     byte[turno]
 
-    ret
+    jmp     movValido
 
 verSiComeDer:
-    sub     rsp,8
-    call    validarDer
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     si 
+    mValidarLimTablero
 
+    ; Valida si es un casillero distinto de vacio.
     add     rcx,1
-    cmp     byte [matriz + rcx],' '
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -402,33 +438,27 @@ verSiComeDer:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarArriba:
-    dec     di
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido  
-    jmp     errorMovimientoZorro
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER A LA ARRIBA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 arribaZorro:
-    sub     rsp,8
-    call    validarDer
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     di
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     sub     rcx,7
 
-    cmp     byte [matriz + rcx],'O'
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
     je      verSiComeArriba
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -438,16 +468,17 @@ arribaZorro:
 
     inc     byte[turno]
 
-    ret
-
+    jmp     movValido
 
 verSiComeArriba:
-    sub     rsp,8
-    call    validarDer
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     si 
+    mValidarLimTablero
 
+    ; Valida si es un casillero distinto de vacio.    
     sub     rcx,7
-    cmp     byte [matriz + rcx],' '
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -460,33 +491,27 @@ verSiComeArriba:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarAbajo:
-    inc     di
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER A LA ABAJO.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 abajoZorro:
-    sub     rsp,8
-    call    validarAbajo
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     di
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     add     rcx,7
 
-    cmp     byte [matriz + rcx],'O'
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
     je      verSiComeAbajo
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -496,15 +521,17 @@ abajoZorro:
 
     inc     byte[turno]
 
-    ret 
+    jmp     movValido 
 
 verSiComeAbajo:
-    sub     rsp,8
-    call    validarAbajo
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     di
+    mValidarLimTablero
 
+    ; Valida si es un casillero distinto de vacio.
     add     rcx,7
-    cmp     byte [matriz + rcx],' '
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -517,35 +544,28 @@ verSiComeAbajo:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarArriIzqZorro:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER DIAGONAL ARRIBA IZQUIERDA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+diagonalArribaIzqZorro:   
+    ; Validar si no me voy fuera de los limites del talero.
     dec     di
     dec     si
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
-
-diagonalArribaIzqZorro:
-    sub     rsp,8
-    call    validarArriIzqZorro
-    add     rsp,8
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     sub     rcx,8
 
-    cmp     byte [matriz + rcx],'O'
-    je     verSiComeArriIzqZorro
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
+    je      verSiComeArriIzqZorro
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -555,15 +575,18 @@ diagonalArribaIzqZorro:
 
     inc     byte[turno]
 
-    ret 
+    jmp     movValido 
 
 verSiComeArriIzqZorro:
-    sub     rsp,8
-    call    validarArriIzqZorro
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     di
+    dec     si
+    mValidarLimTablero
 
     sub     rcx,8
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -576,34 +599,27 @@ verSiComeArriIzqZorro:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarArriDerZorro:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER DIAGONAL ARRIBA DERECHA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+diagonalArribaDerZorro:
+    ; Validar si no me voy fuera de los limites del talero.
     dec     di
     inc     si
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
-diagonalArribaDerZorro:
-    sub     rsp,8
-    call    validarArriDerZorro
-    add     rsp,8
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     sub     rcx,6
 
-    cmp     byte [matriz + rcx],'O'
-    je     verSiComeArriDerZorro
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mHayOca
+    cmp     byte[inputValido],'S'
+    je      verSiComeArriDerZorro
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -613,15 +629,18 @@ diagonalArribaDerZorro:
 
     inc     byte[turno]
 
-    ret 
+    jmp     movValido 
 
 verSiComeArriDerZorro:
-    sub     rsp,8
-    call    validarArriIzqZorro
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     di
+    inc     si
+    mValidarLimTablero
 
     sub     rcx,6
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -634,34 +653,28 @@ verSiComeArriDerZorro:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarAbajoIzqZorro:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER DIAGONAL ABAJO IZQUIERDA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+diagonalAbajoIzqZorro:
+    ; Validar si no me voy fuera de los limites del talero.
     inc     di
     dec     si
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
-diagonalAbajoIzqZorro:
-    sub     rsp,8
-    call    validarAbajoIzqZorro
-    add     rsp,8
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     add     rcx,6
 
-    cmp     byte [matriz + rcx],'O'
-    je     verSiComeAbajoIzqZorro
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
+    je      verSiComeAbajoIzqZorro
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -671,15 +684,17 @@ diagonalAbajoIzqZorro:
 
     inc     byte[turno]
 
-    ret 
+    jmp     movValido 
 
 verSiComeAbajoIzqZorro:
-    sub     rsp,8
-    call    validarArriIzqZorro
-    add     rsp,8
-
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     di
+    dec     si
+    mValidarLimTablero
     add     rcx,6
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -692,34 +707,28 @@ verSiComeAbajoIzqZorro:
 
     inc     byte[ocasCapturadas]
 
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    jmp     movValido
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-validarAbajoDerZorro:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MOVER DIAGONAL ABAJO DERECHA.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+diagonalAbajoDerZorro:
+    ; Validar si no me voy fuera de los limites del talero.
     inc     di
     inc     si
-    sub     rsp,8
-    call    validarFyC
-    add     rsp,8
-
-    cmp     byte[inputValido],'S'
-    je      pasoValido
-    jmp     errorMovimientoZorro
-
-diagonalAbajoDerZorro:
-    sub     rsp,8
-    call    validarAbajoDerZorro
-    add     rsp,8
+    mValidarLimTablero
 
     mov     rcx,[posZorro]
     mov     al,[matriz + rcx]
     add     rcx,8
 
-    cmp     byte [matriz + rcx],'O'
-    je     verSiComeAbajoDerZorro
-
-    cmp     byte [matriz + rcx],' '
+    ; Valida la existencia de oca.
+    mHayOca
+    cmp     byte[inputValido],'S'
+    je      verSiComeAbajoDerZorro
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -729,15 +738,18 @@ diagonalAbajoDerZorro:
 
     inc     byte[turno]
 
-    ret 
+    jmp     movValido 
 
 verSiComeAbajoDerZorro:
-    sub     rsp,8
-    call    validarArriIzqZorro
-    add     rsp,8
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     di
+    inc     si
+    mValidarLimTablero
 
     add     rcx,8
-    cmp     byte [matriz + rcx],' '
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
     jne     errorMovimientoZorro
 
     mov     byte [matriz + rcx], al
@@ -750,16 +762,93 @@ verSiComeAbajoDerZorro:
 
     inc     byte[ocasCapturadas]
 
-    ret
+    jmp     movValido
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-pasoValido:
+; VALIDACIONES DE MOVIMIENTOS DEL ZORRO.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Se chequea si el casillero al que se mueve el zorro es vacio.
+casilleroVacio:
+    mov     byte[inputValido],'N'   
+    cmp     byte [matriz + rcx],' '
+    jne     pasoInvalido
+    mov     byte[inputValido],'S'
     ret
+
+; Se chequea si en el casillero al que quiere ir el zorro existe una oca.
+hayOca:
+    mov     byte[inputValido],'N'   
+    cmp     byte [matriz + rcx],'O'
+    jne     pasoInvalido
+    mov     byte[inputValido],'S'
+    ret
+
+pasoInvalido:
+    ret
+
+
+; Estas dos funciones validan si el zorro realizo algun movimiento correcto.
+movValido:
+    mov     byte[completoMovZorro],'S'
+    ret 
 
 errorMovimientoZorro:
-    mov     rdi,msjError
-    mPuts 
-    jmp     errorMovZorro
+    mov     byte[completoMovZorro],'N'
+    ret
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; CONDICION VICTORIA OCAS POR ACORRALAMIENTO DEL ZORRO.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+estaAcorralado:
+    sub     rsp,8
+    call    buscarZorro
+    add     rsp,8
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mLimpieza
+    mov     sil,[posZorroCol]
+    mov     dil,[posZorroFil]
+
+    ; Valido por izq
+    ; Valido limite de tablero
+    dec     sil
+    mValidarLimAcorralamiento
+    jne     paso1
+
+    ; Valido si es un casillero vacio.
+    mov     rcx,[posZorro]
+    dec     rcx
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
+    je      noAcorralado
+
+    ; Valido si es una oca si no es vacio.
+    mHayOca
+    cmp     byte[inputValido],'S'
+    jne     paso1
+
+    ; Valido limite del tablero.
+    dec     sil
+    mValidarLimAcorralamiento
+    jne     paso1
+
+    ; Valido si es vacio entonces no esta acorralado.
+    dec     rcx
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
+    je      noAcorralado
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,
+
+paso1:
+    ret
+
+
+
+noAcorralado:
+    ret
 
 
 
@@ -880,15 +969,9 @@ calcDesplaz:
 	imul	ax,LONG_ELEM	;(col-1) * longElem
 
 	add		bx,ax				;bx = desplazOca total
-
     add     word[desplazOca], bx
 
     ret
-
-
-
-
-
 
 
 

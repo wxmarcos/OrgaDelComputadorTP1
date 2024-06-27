@@ -24,19 +24,18 @@ extern  sscanf
 
 
 section	.data
-    separador           db  " ",10,0
+    separador           db  "---------------------",10,0
     char                db  "|%c|",0
     charNum             db  "|%hhi| ",0    
-    newline             db  10,0                                ;OJO LOS DATOS SIEMPRE ORDENADOS POR CATEGORIA POR QUE PUEDE DAR ERROR SI NO XD
-    longFila            db  7                                   ;PARA TESTEAR EN GDB PUEDEN PONER LOS BREAKPOINT EMPEZANDO POR OTRAS PARTES,
-
-    nFil                db  1
     
+    newline             db  10,0                               
+    longFila            db  7                               
+    nFil                db  1
     contador            db  0
     
 
 section	.bss
-    matriz  		    resb	49
+    matriz  		    resb	100
 
 
 section .text
@@ -49,9 +48,6 @@ printMapa:
     sub     rcx,rcx
     sub     rsi,rsi
     sub     rdi,rdi 
-
-    mov     rdi,separador
-    mPrintf
 
     mov     rdi,charNum
     mov     sil,[nFil]

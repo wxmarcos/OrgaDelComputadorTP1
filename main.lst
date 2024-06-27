@@ -45,7 +45,7 @@
     45                                  %macro mValidarLimTablero 0 
     46                                      mValidarFyC
     47                                      cmp     byte[inputValido],'S'
-    48                                      jne     errorMovimientoZorro
+    48                                      jne     errorMovimiento
     49                                  %endmacro
     50                                  
     51                                  %macro mValidarLimAcorralamiento 0 
@@ -61,1301 +61,1374 @@
     61                                  %endmacro
     62                                  
     63                                  
-    64                                  
-    65                                  
-    66                                  section	.data
-    67 00000000 23234F4F4F2323              matriz      db  "#","#","O","O","O","#","#"
-    68 00000007 23234F4F4F2323                          db  "#","#","O","O","O","#","#"
-    69 0000000E 4F4F4F4F4F4F4F                          db  "O","O","O","O","O","O","O"
-    70 00000015 4F20202020204F                          db  "O"," "," "," "," "," ","O"
-    71 0000001C 4F4F4F5820204F                          db  "O","O","O","X"," "," ","O"
-    72 00000023 23232020202023                          db  "#","#"," "," "," "," ","#"
-    73 0000002A 2323202020232300                        db  "#","#"," "," "," ","#","#",0
-    74                                                                  
-    75 00000032 496E67726573617220-         msgMovimientoZorro  db  "Ingresar W (arriba), A (izquierda), S (abajo), D (derecha), Q (diagonal sup izq), E (diagonal sup der), Z (diagonal inf izq), C (diagonal inf der) o X (para guardar y salir)",0
-    75 0000003B 572028617272696261-
-    75 00000044 292C20412028697A71-
-    75 0000004D 756965726461292C20-
-    75 00000056 5320286162616A6F29-
-    75 0000005F 2C2044202864657265-
-    75 00000068 636861292C20512028-
-    75 00000071 646961676F6E616C20-
-    75 0000007A 73757020697A71292C-
-    75 00000083 20452028646961676F-
-    75 0000008C 6E616C207375702064-
-    75 00000095 6572292C205A202864-
-    75 0000009E 6961676F6E616C2069-
-    75 000000A7 6E6620697A71292C20-
-    75 000000B0 432028646961676F6E-
-    75 000000B9 616C20696E66206465-
-    75 000000C2 7229206F2058202870-
-    75 000000CB 617261206775617264-
-    75 000000D4 617220792073616C69-
-    75 000000DD 722900             
-    76 000000E0 496E67726573652041-         msjMovimientoOcas   db  "Ingrese A (izquierda), S (abajo), D (derecha)",0
-    76 000000E9 2028697A7175696572-
-    76 000000F2 6461292C2053202861-
-    76 000000FB 62616A6F292C204420-
-    76 00000104 286465726563686129-
-    76 0000010D 00                 
-    77 0000010E 496E67726573652066-         msjIngFilCol	    db	"Ingrese fila (1 a 7) y columna (1 a 7) separados por un espacio para seleccionar la oca que quiera mover: ",0
-    77 00000117 696C61202831206120-
-    77 00000120 3729207920636F6C75-
-    77 00000129 6D6E61202831206120-
-    77 00000132 372920736570617261-
-    77 0000013B 646F7320706F722075-
-    77 00000144 6E206573706163696F-
-    77 0000014D 20706172612073656C-
-    77 00000156 656363696F6E617220-
-    77 0000015F 6C61206F6361207175-
-    77 00000168 652071756965726120-
-    77 00000171 6D6F7665723A2000   
-    78 00000179 4C6F73206461746F73-         msjErrorInput       db  "Los datos ingresados son inválidos. Intente nuevamente.",0
-    78 00000182 20696E677265736164-
-    78 0000018B 6F7320736F6E20696E-
-    78 00000194 76C3A16C69646F732E-
-    78 0000019D 20496E74656E746520-
-    78 000001A6 6E756576616D656E74-
-    78 000001AF 652E00             
-    79 000001B2 4E6F2068617920756E-         msjNoHayOca         db  "No hay una oca en esa posicion.",0
-    79 000001BB 61206F636120656E20-
-    79 000001C4 65736120706F736963-
-    79 000001CD 696F6E2E00         
-    80 000001D2 43616E746964616420-         msjOcasCapturadas   db  "Cantidad de ocas capturadas: %hhi",10,0
-    80 000001DB 6465206F6361732063-
-    80 000001E4 617074757261646173-
-    80 000001ED 3A20256868690A00   
-    81 000001F5 4572726F7220646520-         msjError            db  "Error de movimiento",0
-    81 000001FE 6D6F76696D69656E74-
-    81 00000207 6F00               
-    82                                  
-    83 00000209 202020207C317C7C32-         columnas            db  "    |1||2||3||4||5||6||7|",0 
-    83 00000212 7C7C337C7C347C7C35-
-    83 0000021B 7C7C367C7C377C00   
-    84 00000223 202020202D2D2D2D2D-         separador           db  "    ---------------------",0
-    84 0000022C 2D2D2D2D2D2D2D2D2D-
-    84 00000235 2D2D2D2D2D2D2D00   
+    64                                  section	.data
+    65 00000000 23234F4F4F2323              matriz      db  "#","#","O","O","O","#","#"
+    66 00000007 23234F4F4F2323                          db  "#","#","O","O","O","#","#"
+    67 0000000E 4F4F4F4F4F4F4F                          db  "O","O","O","O","O","O","O"
+    68 00000015 4F20202020204F                          db  "O"," "," "," "," "," ","O"
+    69 0000001C 4F20205820204F                          db  "O"," "," ","X"," "," ","O"
+    70 00000023 23232020202023                          db  "#","#"," "," "," "," ","#"
+    71 0000002A 2323202020232300                        db  "#","#"," "," "," ","#","#",0
+    72                                                                  
+    73 00000032 496E67726573617220-         msgMovimientoZorro  db  "Ingresar W (arriba), A (izquierda), S (abajo), D (derecha), Q (diagonal sup izq), E (diagonal sup der), Z (diagonal inf izq), C (diagonal inf der) o X (para guardar y salir)",0
+    73 0000003B 572028617272696261-
+    73 00000044 292C20412028697A71-
+    73 0000004D 756965726461292C20-
+    73 00000056 5320286162616A6F29-
+    73 0000005F 2C2044202864657265-
+    73 00000068 636861292C20512028-
+    73 00000071 646961676F6E616C20-
+    73 0000007A 73757020697A71292C-
+    73 00000083 20452028646961676F-
+    73 0000008C 6E616C207375702064-
+    73 00000095 6572292C205A202864-
+    73 0000009E 6961676F6E616C2069-
+    73 000000A7 6E6620697A71292C20-
+    73 000000B0 432028646961676F6E-
+    73 000000B9 616C20696E66206465-
+    73 000000C2 7229206F2058202870-
+    73 000000CB 617261206775617264-
+    73 000000D4 617220792073616C69-
+    73 000000DD 722900             
+    74 000000E0 496E67726573652041-         msjMovimientoOcas   db  "Ingrese A (izquierda), S (abajo), D (derecha)",0
+    74 000000E9 2028697A7175696572-
+    74 000000F2 6461292C2053202861-
+    74 000000FB 62616A6F292C204420-
+    74 00000104 286465726563686129-
+    74 0000010D 00                 
+    75 0000010E 496E67726573652066-         msjIngFilCol	    db	"Ingrese fila (1 a 7) y columna (1 a 7) separados por un espacio para seleccionar la oca que quiera mover: ",0
+    75 00000117 696C61202831206120-
+    75 00000120 3729207920636F6C75-
+    75 00000129 6D6E61202831206120-
+    75 00000132 372920736570617261-
+    75 0000013B 646F7320706F722075-
+    75 00000144 6E206573706163696F-
+    75 0000014D 20706172612073656C-
+    75 00000156 656363696F6E617220-
+    75 0000015F 6C61206F6361207175-
+    75 00000168 652071756965726120-
+    75 00000171 6D6F7665723A2000   
+    76 00000179 4C6F73206461746F73-         msjErrorInput       db  "Los datos ingresados son inválidos. Intente nuevamente.",0
+    76 00000182 20696E677265736164-
+    76 0000018B 6F7320736F6E20696E-
+    76 00000194 76C3A16C69646F732E-
+    76 0000019D 20496E74656E746520-
+    76 000001A6 6E756576616D656E74-
+    76 000001AF 652E00             
+    77 000001B2 4E6F2068617920756E-         msjNoHayOca         db  "No hay una oca en esa posicion.",0
+    77 000001BB 61206F636120656E20-
+    77 000001C4 65736120706F736963-
+    77 000001CD 696F6E2E00         
+    78 000001D2 43616E746964616420-         msjOcasCapturadas   db  "Cantidad de ocas capturadas: %hhi",10,0
+    78 000001DB 6465206F6361732063-
+    78 000001E4 617074757261646173-
+    78 000001ED 3A20256868690A00   
+    79 000001F5 4572726F7220646520-         msjError            db  "Error de movimiento",0
+    79 000001FE 6D6F76696D69656E74-
+    79 00000207 6F00               
+    80                                  
+    81 00000209 202020207C317C7C32-         columnas            db  "    |1||2||3||4||5||6||7|",0 
+    81 00000212 7C7C337C7C347C7C35-
+    81 0000021B 7C7C367C7C377C00   
+    82 00000223 202020202D2D2D2D2D-         separador           db  "    ---------------------",0
+    82 0000022C 2D2D2D2D2D2D2D2D2D-
+    82 00000235 2D2D2D2D2D2D2D00   
+    83                                  
+    84 0000023D 0AC2A1C2A1C2A14761-         msjGanaZorro        db  10,"¡¡¡Gana el Zorro por capturar 12 ocas!!!",10,10,0   
+    84 00000246 6E6120656C205A6F72-
+    84 0000024F 726F20706F72206361-
+    84 00000258 707475726172203132-
+    84 00000261 206F6361732121210A-
+    84 0000026A 0A00               
     85                                  
-    86 0000023D 0AC2A1C2A1C2A14761-         msjGanaZorro        db  10,"¡¡¡Gana el Zorro por capturar 12 ocas!!!",10,10,0   
-    86 00000246 6E6120656C205A6F72-
-    86 0000024F 726F20706F72206361-
-    86 00000258 707475726172203132-
-    86 00000261 206F6361732121210A-
-    86 0000026A 0A00               
-    87                                  
-    88 0000026C 256868692025686869-         formatInputFilCol	db	"%hhi %hhi",0  
-    88 00000275 00                 
-    89 00000276 636C65617200                cmdClear            db  "clear",0
-    90                                  
-    91 0000027C 0000                        contador            dw  0
-    92 0000027E 0000                        turno               dw  0
-    93 00000280 0000                        ocasCapturadas      dw  0
-    94                                  
-    95                                  	LONG_ELEM	        equ	1
-    96                                  	CANT_FIL	        equ	7
-    97                                  	CANT_COL	        equ	7
-    98 00000282 07                          longFila            db  7
+    86 0000026C 256868692025686869-         formatInputFilCol	db	"%hhi %hhi",0  
+    86 00000275 00                 
+    87 00000276 636C65617200                cmdClear            db  "clear",0
+    88                                  
+    89 0000027C 0000                        contador            dw  0
+    90 0000027E 0000                        turno               dw  0
+    91 00000280 0000                        ocasCapturadas      dw  0
+    92                                  
+    93                                  	LONG_ELEM	        equ	1
+    94                                  	CANT_FIL	        equ	7
+    95                                  	CANT_COL	        equ	7
+    96 00000282 07                          longFila            db  7
+    97                                  
+    98 00000283 0000                        desplazOca			dw	0
     99                                  
-   100 00000283 0000                        desplazOca			dw	0
-   101                                  
-   102                                  section .bss
-   103 00000000 <res 32h>                   inputFilCol		        resb	50
-   104 00000032 ????                       	filOca		            resw	1
-   105 00000034 ????                    	colOca       	        resw	1 	
-   106 00000036 ??                          inputValido             resb    1   ;S valido N invalido
-   107                                  
-   108 00000037 <res 32h>                   inputMov                resb    50
-   109 00000069 <res 64h>                   posZorro                resb    100
-   110 000000CD ??                          posZorroCol             resb    1
-   111 000000CE ??                          posZorroFil             resb    1
-   112 000000CF ??                          completoMovZorro        resb    1   ;S completo movimiento correctamente y N para no.
+   100                                  section .bss
+   101 00000000 <res 32h>                   inputFilCol		        resb	50
+   102 00000032 ????                       	filOca		            resw	1
+   103 00000034 ????                    	colOca       	        resw	1 	
+   104 00000036 ??                          inputValido             resb    1   ;S valido N invalido
+   105                                  
+   106 00000037 <res 32h>                   inputMov                resb    50
+   107 00000069 <res 64h>                   posZorro                resb    100
+   108 000000CD ??                          posZorroCol             resb    1
+   109 000000CE ??                          posZorroFil             resb    1
+   110 000000CF ??                          completoMov             resb    1   ;S completo movimiento correctamente y N para no.
+   111 000000D0 ??                          finDelJuedo             resb    1   ;X sale e Y no.
+   112                                  
    113                                  
-   114                                  
-   115                                  
-   116                                  section .text
-   117                                  
-   118                                  main:
-   119                                      ; Limpia la pantalla
-   120                                      ; mov     rdi,cmdClear
-   121                                      ; sub		rsp,8	
-   122                                      ; call    system    
-   123                                  	; add		rsp,8	
-   124                                  
-   125 00000000 E9BC0A0000                  jmp     estaAcorralado
-   126                                  
-   127                                  
-   128                                      ; Printea el mapa actualizado
-   129 00000005 48BF-                       mov     rdi, columnas
-   129 00000007 [0902000000000000] 
-   130                                      mPuts
-    22 0000000F 4883EC08            <1>  sub rsp,8
-    23 00000013 E8(00000000)        <1>  call puts
-    24 00000018 4883C408            <1>  add rsp,8
-   131 0000001C 48BF-                       mov     rdi, separador
-   131 0000001E [2302000000000000] 
-   132                                      mPuts
-    22 00000026 4883EC08            <1>  sub rsp,8
-    23 0000002A E8(00000000)        <1>  call puts
-    24 0000002F 4883C408            <1>  add rsp,8
-   133 00000033 4831FF                      xor     rdi,rdi
-   134 00000036 48BF-                       mov     rdi,matriz
-   134 00000038 [0000000000000000] 
-   135 00000040 4883EC08                    sub		rsp,8	
-   136 00000044 E8(00000000)                call    printMapa    
-   137 00000049 4883C408                	add		rsp,8	
-   138                                  
-   139 0000004D 48BF-                       mov     rdi, msjOcasCapturadas
-   139 0000004F [D201000000000000] 
-   140 00000057 408A3425[80020000]          mov     sil, [ocasCapturadas]
-   141                                      mPrintf
-    10 0000005F 4883EC08            <1>  sub rsp,8
-    11 00000063 E8(00000000)        <1>  call printf
-    12 00000068 4883C408            <1>  add rsp,8
-   142                                  
-   143                                  
-   144                                  errorMovZorro:
-   145                                  ; Si el zorro come  o si hay un error de mov salta aca para mover otra vez.
-   146                                  comioZorro:
-   147 0000006C 4883EC08                    sub     rsp,8
-   148 00000070 E8E2000000                  call    turnoZorro
-   149 00000075 4883C408                    add     rsp,8
-   150                                  
-   151                                      ; Printea el mapa actualizado
-   152 00000079 48BF-                       mov     rdi, columnas
-   152 0000007B [0902000000000000] 
-   153                                      mPuts
-    22 00000083 4883EC08            <1>  sub rsp,8
-    23 00000087 E8(00000000)        <1>  call puts
-    24 0000008C 4883C408            <1>  add rsp,8
-   154 00000090 48BF-                       mov     rdi, separador
-   154 00000092 [2302000000000000] 
-   155                                      mPuts
-    22 0000009A 4883EC08            <1>  sub rsp,8
-    23 0000009E E8(00000000)        <1>  call puts
-    24 000000A3 4883C408            <1>  add rsp,8
-   156                                  
-   157 000000A7 4831FF                      xor     rdi,rdi
-   158 000000AA 48BF-                       mov     rdi,matriz
-   158 000000AC [0000000000000000] 
-   159 000000B4 4883EC08                    sub		rsp,8	
-   160 000000B8 E8(00000000)                call    printMapa    
-   161 000000BD 4883C408                	add		rsp,8
-   162                                  
-   163 000000C1 48BF-                       mov     rdi, msjOcasCapturadas
-   163 000000C3 [D201000000000000] 
-   164 000000CB 408A3425[80020000]          mov     sil, [ocasCapturadas]
-   165                                      mPrintf
-    10 000000D3 4883EC08            <1>  sub rsp,8
-    11 000000D7 E8(00000000)        <1>  call printf
-    12 000000DC 4883C408            <1>  add rsp,8
-   166                                  
-   167                                      ; Chequea condicion de fin.
-   168 000000E0 4829FF                      sub     rdi,rdi
-   169 000000E3 408A3C25[80020000]          mov     dil,[ocasCapturadas]
-   170 000000EB 4080FF0C                    cmp     dil,12
-   171 000000EF 7425                        je      fin
-   172                                  
-   173 000000F1 4831C9                      xor     rcx,rcx
-   174 000000F4 8A0C25[7E020000]            mov     cl,byte[turno]
-   175 000000FB 80F900                      cmp     cl,0
-   176 000000FE 0F84FCFEFFFF                je      main
-   177                                      
-   178                                  errorMovOca:
-   179                                      ; Siguen las Ocas
-   180 00000104 4883EC08                    sub     rsp,8
-   181 00000108 E8660A0000                  call    turnoOcas
-   182 0000010D 4883C408                    add     rsp,8
-   183                                  
-   184 00000111 E9EAFEFFFF                  jmp     main
-   185                                  
-   186                                  
-   187                                  fin:
-   188                                      ; Guardamos partida
-   189                                      ; ....
-   190                                      ; ....
-   191                                      ; ....
+   114                                  section .text
+   115                                  main:
+   116                                      ; Limpia la pantalla
+   117                                      ; mov     rdi,cmdClear
+   118                                      ; sub		rsp,8	
+   119                                      ; call    system    
+   120                                  	; add		rsp,8	
+   121                                  
+   122                                      ; Printea el mapa actualizado
+   123 00000000 48BF-                       mov     rdi, columnas
+   123 00000002 [0902000000000000] 
+   124                                      mPuts
+    22 0000000A 4883EC08            <1>  sub rsp,8
+    23 0000000E E8(00000000)        <1>  call puts
+    24 00000013 4883C408            <1>  add rsp,8
+   125 00000017 48BF-                       mov     rdi, separador
+   125 00000019 [2302000000000000] 
+   126                                      mPuts
+    22 00000021 4883EC08            <1>  sub rsp,8
+    23 00000025 E8(00000000)        <1>  call puts
+    24 0000002A 4883C408            <1>  add rsp,8
+   127 0000002E 4831FF                      xor     rdi,rdi
+   128 00000031 48BF-                       mov     rdi,matriz
+   128 00000033 [0000000000000000] 
+   129 0000003B 4883EC08                    sub		rsp,8	
+   130 0000003F E8(00000000)                call    printMapa    
+   131 00000044 4883C408                	add		rsp,8	
+   132                                  
+   133 00000048 48BF-                       mov     rdi, msjOcasCapturadas
+   133 0000004A [D201000000000000] 
+   134 00000052 408A3425[80020000]          mov     sil, [ocasCapturadas]
+   135                                      mPrintf
+    10 0000005A 4883EC08            <1>  sub rsp,8
+    11 0000005E E8(00000000)        <1>  call printf
+    12 00000063 4883C408            <1>  add rsp,8
+   136                                  
+   137                                  
+   138                                  errorMovZorro:
+   139                                  ; Si el zorro come  o si hay un error de mov salta aca para mover otra vez.
+   140                                  comioZorro:
+   141 00000067 4883EC08                    sub     rsp,8
+   142 0000006B E8F0000000                  call    turnoZorro
+   143 00000070 4883C408                    add     rsp,8
+   144                                  
+   145 00000074 803C25[D0000000]58          cmp     byte[finDelJuedo],'X'
+   146 0000007C 0F849D000000                je      fin
+   147                                  
+   148                                      ; Printea el mapa actualizado
+   149 00000082 48BF-                       mov     rdi, columnas
+   149 00000084 [0902000000000000] 
+   150                                      mPuts
+    22 0000008C 4883EC08            <1>  sub rsp,8
+    23 00000090 E8(00000000)        <1>  call puts
+    24 00000095 4883C408            <1>  add rsp,8
+   151 00000099 48BF-                       mov     rdi, separador
+   151 0000009B [2302000000000000] 
+   152                                      mPuts
+    22 000000A3 4883EC08            <1>  sub rsp,8
+    23 000000A7 E8(00000000)        <1>  call puts
+    24 000000AC 4883C408            <1>  add rsp,8
+   153 000000B0 4831FF                      xor     rdi,rdi
+   154 000000B3 48BF-                       mov     rdi,matriz
+   154 000000B5 [0000000000000000] 
+   155 000000BD 4883EC08                    sub		rsp,8	
+   156 000000C1 E8(00000000)                call    printMapa    
+   157 000000C6 4883C408                	add		rsp,8
+   158 000000CA 48BF-                       mov     rdi, msjOcasCapturadas
+   158 000000CC [D201000000000000] 
+   159 000000D4 408A3425[80020000]          mov     sil, [ocasCapturadas]
+   160                                      mPrintf
+    10 000000DC 4883EC08            <1>  sub rsp,8
+    11 000000E0 E8(00000000)        <1>  call printf
+    12 000000E5 4883C408            <1>  add rsp,8
+   161                                  
+   162                                      ; Chequea condicion de fin.
+   163 000000E9 4829FF                      sub     rdi,rdi
+   164 000000EC 408A3C25[80020000]          mov     dil,[ocasCapturadas]
+   165 000000F4 4080FF0C                    cmp     dil,12
+   166 000000F8 7425                        je      fin
+   167                                  
+   168                                      ; Chequear si el zorro comio una oca si es asi bifurca a main.
+   169 000000FA 4831C9                      xor     rcx,rcx
+   170 000000FD 8A0C25[7E020000]            mov     cl,byte[turno]
+   171 00000104 80F900                      cmp     cl,0
+   172 00000107 0F84F3FEFFFF                je      main
+   173                                  
+   174                                      ; Siguen las Ocas
+   175 0000010D 4883EC08                    sub     rsp,8
+   176 00000111 E8730A0000                  call    turnoOcas
+   177 00000116 4883C408                    add     rsp,8
+   178                                  
+   179 0000011A E9E1FEFFFF                  jmp     main
+   180                                  
+   181                                  
+   182                                  fin:
+   183                                      ; Guardamos partida
+   184                                      ; ....
+   185                                      ; ....
+   186                                      ; ....
+   187                                  
+   188 0000011F 48BF-                       mov     rdi, msjGanaZorro
+   188 00000121 [3D02000000000000] 
+   189                                      mPrintf
+    10 00000129 4883EC08            <1>  sub rsp,8
+    11 0000012D E8(00000000)        <1>  call printf
+    12 00000132 4883C408            <1>  add rsp,8
+   190                                  
+   191 00000136 C3                          ret
    192                                  
-   193 00000116 48BF-                       mov     rdi, msjGanaZorro
-   193 00000118 [3D02000000000000] 
-   194                                      mPrintf
-    10 00000120 4883EC08            <1>  sub rsp,8
-    11 00000124 E8(00000000)        <1>  call printf
-    12 00000129 4883C408            <1>  add rsp,8
-   195                                  
-   196 0000012D C3                          ret
-   197                                  
-   198                                  
-   199                                  
-   200                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   201                                  ;; VALIDAR FILA COLUMNA.
-   202                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   203                                  validarFyC:
-   204 0000012E C60425[36000000]4E          mov     byte[inputValido],'N'   
+   193                                  
+   194                                  
+   195                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   196                                  ;; VALIDAR FILA COLUMNA.
+   197                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   198                                  validarFyC:
+   199 00000137 C60425[36000000]4E          mov     byte[inputValido],'N'   
+   200                                  
+   201 0000013F 6683FE01                    cmp     si,1
+   202 00000143 7C1A                        jl      invalido
+   203 00000145 6683FE07                    cmp     si,7
+   204 00000149 7F14                        jg      invalido
    205                                  
-   206 00000136 6683FE01                    cmp     si,1
-   207 0000013A 7C1A                        jl      invalido
-   208 0000013C 6683FE07                    cmp     si,7
-   209 00000140 7F14                        jg      invalido
+   206 0000014B 6683FF01                    cmp     di,1
+   207 0000014F 7C0E                        jl      invalido
+   208 00000151 6683FF07                    cmp     di,7
+   209 00000155 7F08                        jg      invalido
    210                                  
-   211 00000142 6683FF01                    cmp     di,1
-   212 00000146 7C0E                        jl      invalido
-   213 00000148 6683FF07                    cmp     di,7
-   214 0000014C 7F08                        jg      invalido
+   211 00000157 C60425[36000000]53          mov     byte[inputValido],'S'
+   212                                  invalido:
+   213 0000015F C3                          ret
+   214                                  
    215                                  
-   216 0000014E C60425[36000000]53          mov     byte[inputValido],'S'
-   217                                  invalido:
-   218 00000156 C3                          ret
-   219                                  
-   220                                  
-   221                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   222                                  ;; RUTINAS INTERNAS
-   223                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   224                                  turnoZorro:
-   225 00000157 4883EC08                    sub     rsp,8
-   226 0000015B E835000000                  call    buscarZorro
-   227 00000160 4883C408                    add     rsp,8
-   228                                  
-   229 00000164 4883EC08                    sub     rsp,8
-   230 00000168 E897000000                  call    movimientoZorro   
-   231 0000016D 4883C408                    add     rsp,8
-   232                                  
-   233 00000171 803C25[CF000000]53          cmp     byte[completoMovZorro],'S'
-   234 00000179 7419                        je      completoMovConExito
-   235                                  
-   236 0000017B 48BF-                       mov     rdi,msjError
-   236 0000017D [F501000000000000] 
-   237                                      mPuts 
-    22 00000185 4883EC08            <1>  sub rsp,8
-    23 00000189 E8(00000000)        <1>  call puts
-    24 0000018E 4883C408            <1>  add rsp,8
-   238 00000192 EBC3                        jmp     turnoZorro
-   239                                  
-   240                                  ; Fin del turno zorro.
-   241                                  completoMovConExito:
-   242 00000194 C3                          ret
-   243                                  
-   244                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   245                                  ; BUCAR LA POSICION ACTUAL DEL ZORRO.
-   246                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   247                                  buscarZorro:
-   248 00000195 C60425[7C020000]00          mov     byte[contador],0
-   249                                  
-   250 0000019D 4883EC08                    sub     rsp,8
-   251 000001A1 E805000000                  call    buscarPosZorro
-   252 000001A6 4883C408                    add     rsp,8
+   216                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   217                                  ;; RUTINAS INTERNAS
+   218                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   219                                  turnoZorro:
+   220 00000160 4883EC08                    sub     rsp,8
+   221 00000164 E87E000000                  call    buscarZorro
+   222 00000169 4883C408                    add     rsp,8
+   223                                  
+   224                                      ; Se pide una opcion de movimiento, si es x sale y guarda la partida
+   225 0000016D C60425[D0000000]4E          mov     byte[finDelJuedo],'N'
+   226 00000175 48BF-                       mov     rdi,msgMovimientoZorro
+   226 00000177 [3200000000000000] 
+   227                                      mPuts                       
+    22 0000017F 4883EC08            <1>  sub rsp,8
+    23 00000183 E8(00000000)        <1>  call puts
+    24 00000188 4883C408            <1>  add rsp,8
+   228 0000018C 48BF-                       mov     rdi,inputMov
+   228 0000018E [3700000000000000] 
+   229                                      mGets
+    16 00000196 4883EC08            <1>  sub rsp,8
+    17 0000019A E8(00000000)        <1>  call gets
+    18 0000019F 4883C408            <1>  add rsp,8
+   230                                  
+   231 000001A3 803C25[37000000]58          cmp     byte[inputMov],'X'
+   232 000001AB 7431                        je      comandoSalirYGuardar
+   233                                  
+   234 000001AD 4883EC08                    sub     rsp,8
+   235 000001B1 E8A0000000                  call    movimientoZorro   
+   236 000001B6 4883C408                    add     rsp,8
+   237                                  
+   238 000001BA 803C25[CF000000]53          cmp     byte[completoMov],'S'
+   239 000001C2 7419                        je      completoMovConExito
+   240                                  
+   241 000001C4 48BF-                       mov     rdi,msjError
+   241 000001C6 [F501000000000000] 
+   242                                      mPuts 
+    22 000001CE 4883EC08            <1>  sub rsp,8
+    23 000001D2 E8(00000000)        <1>  call puts
+    24 000001D7 4883C408            <1>  add rsp,8
+   243 000001DB EB83                        jmp     turnoZorro
+   244                                  
+   245                                  ; Fin del turno zorro.
+   246                                  completoMovConExito:
+   247 000001DD C3                          ret
+   248                                  
+   249                                  ; Fin del juego guardar la partida y salir.
+   250                                  comandoSalirYGuardar:
+   251 000001DE C60425[D0000000]58          mov     byte[finDelJuedo],'X'
+   252 000001E6 C3                          ret
    253                                  
-   254 000001AA C3                          ret
-   255                                  
-   256                                  buscarPosZorro:
-   257 000001AB 4831C9                      xor     rcx,rcx
-   258 000001AE 668B0C25[7C020000]          mov     cx,[contador]
-   259 000001B6 8A81[00000000]              mov     al,[matriz + rcx]
-   260 000001BC 3C58                        cmp     al,'X'                      
-   261 000001BE 7409                        je      actualizarPosicion          
-   262 000001C0 FE0425[7C020000]            inc     byte[contador]
-   263 000001C7 EBE2                        jmp     buscarPosZorro
-   264                                  
-   265                                  actualizarPosicion:
-   266 000001C9 48890C25[69000000]          mov     [posZorro],rcx
-   267 000001D1 C60425[7C020000]00          mov     byte[contador],0
-   268                                  
-   269 000001D9 4829C0                      sub     rax,rax
-   270 000001DC 668B0425[69000000]          mov     ax,[posZorro]
-   271 000001E4 F63C25[82020000]            idiv    byte[longFila]
-   272                                  
-   273 000001EB 4829C9                      sub     rcx,rcx
-   274 000001EE 4829F6                      sub     rsi,rsi
-   275                                  
-   276                                      ; Cociente Fil
-   277 000001F1 FEC0                        inc     al
-   278 000001F3 880425[CE000000]            mov     [posZorroFil],al
-   279                                      ; Resto Col
-   280 000001FA FEC4                        inc     ah
-   281 000001FC 882425[CD000000]            mov     [posZorroCol],ah
+   254                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   255                                  ; BUCAR LA POSICION ACTUAL DEL ZORRO.
+   256                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   257                                  buscarZorro:
+   258 000001E7 C60425[7C020000]00          mov     byte[contador],0
+   259                                  
+   260 000001EF 4883EC08                    sub     rsp,8
+   261 000001F3 E805000000                  call    buscarPosZorro
+   262 000001F8 4883C408                    add     rsp,8
+   263                                  
+   264 000001FC C3                          ret
+   265                                  
+   266                                  buscarPosZorro:
+   267 000001FD 4831C9                      xor     rcx,rcx
+   268 00000200 668B0C25[7C020000]          mov     cx,[contador]
+   269 00000208 8A81[00000000]              mov     al,[matriz + rcx]
+   270 0000020E 3C58                        cmp     al,'X'                      
+   271 00000210 7409                        je      actualizarPosicion          
+   272 00000212 FE0425[7C020000]            inc     byte[contador]
+   273 00000219 EBE2                        jmp     buscarPosZorro
+   274                                  
+   275                                  actualizarPosicion:
+   276 0000021B 48890C25[69000000]          mov     [posZorro],rcx
+   277 00000223 C60425[7C020000]00          mov     byte[contador],0
+   278                                  
+   279 0000022B 4829C0                      sub     rax,rax
+   280 0000022E 668B0425[69000000]          mov     ax,[posZorro]
+   281 00000236 F63C25[82020000]            idiv    byte[longFila]
    282                                  
-   283 00000203 C3                          ret
-   284                                  
-   285                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   286                                  ; VALIDAR INGRESO POR TECLADO DEL MOVIMIENTO DEL ZORRO
-   287                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   288                                  movimientoZorro:
-   289 00000204 48BF-                       mov     rdi,msgMovimientoZorro
-   289 00000206 [3200000000000000] 
-   290                                      mPuts                       
-    22 0000020E 4883EC08            <1>  sub rsp,8
-    23 00000212 E8(00000000)        <1>  call puts
-    24 00000217 4883C408            <1>  add rsp,8
-   291                                  
-   292 0000021B 48BF-                       mov     rdi,inputMov
-   292 0000021D [3700000000000000] 
-   293                                      mGets
-    16 00000225 4883EC08            <1>  sub rsp,8
-    17 00000229 E8(00000000)        <1>  call gets
-    18 0000022E 4883C408            <1>  add rsp,8
+   283 0000023D 4829C9                      sub     rcx,rcx
+   284 00000240 4829F6                      sub     rsi,rsi
+   285                                  
+   286                                      ; Cociente Fil
+   287 00000243 FEC0                        inc     al
+   288 00000245 880425[CE000000]            mov     [posZorroFil],al
+   289                                      ; Resto Col
+   290 0000024C FEC4                        inc     ah
+   291 0000024E 882425[CD000000]            mov     [posZorroCol],ah
+   292                                  
+   293 00000255 C3                          ret
    294                                  
-   295 00000232 4831C9                      xor     rcx,rcx
-   296 00000235 4831C0                      xor     rax,rax
-   297 00000238 4831FF                      xor     rdi,rdi
-   298 0000023B 4831F6                      xor     rsi,rsi 
-   299                                  
-   300 0000023E 408A3425[CD000000]          mov     sil,[posZorroCol]
-   301 00000246 408A3C25[CE000000]          mov     dil,[posZorroFil]
-   302                                  
-   303 0000024E 803C25[37000000]41          cmp     byte[inputMov],'A'
-   304 00000256 7471                        je      izquierdaZorro
-   305                                  
-   306 00000258 803C25[37000000]44          cmp     byte[inputMov],'D'
-   307 00000260 0F8457010000                je      derechaZorro
-   308                                  
-   309 00000266 803C25[37000000]57          cmp     byte[inputMov],'W'
-   310 0000026E 0F843D020000                je      arribaZorro
-   311                                  
-   312 00000274 803C25[37000000]53          cmp     byte[inputMov],'S'
-   313 0000027C 0F8423030000                je      abajoZorro
-   314                                  
-   315 00000282 803C25[37000000]51          cmp     byte[inputMov],'Q'
-   316 0000028A 0F8409040000                je      diagonalArribaIzqZorro
-   317                                  
-   318 00000290 803C25[37000000]45          cmp     byte[inputMov],'E'
-   319 00000298 0F84F5040000                je      diagonalArribaDerZorro
-   320                                  
-   321 0000029E 803C25[37000000]5A          cmp     byte[inputMov],'Z'
-   322 000002A6 0F84E1050000                je      diagonalAbajoIzqZorro
-   323                                  
-   324 000002AC 803C25[37000000]43          cmp     byte[inputMov],'C'
-   325 000002B4 0F84CD060000                je      diagonalAbajoDerZorro
-   326                                  
-   327 000002BA 803C25[37000000]58          cmp     byte[inputMov],'X'
-   328 000002C2 0F844EFEFFFF                je      fin
-   329                                  
-   330                                      ; Si llega aca se ingreso algo no valido
-   331 000002C8 C3                          ret
-   332                                  
-   333                                  
+   295                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   296                                  ; VALIDAR INGRESO POR TECLADO DEL MOVIMIENTO DEL ZORRO
+   297                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   298                                  movimientoZorro:
+   299                                      mLimpieza
+    57 00000256 4831C9              <1>  xor rcx,rcx
+    58 00000259 4831C0              <1>  xor rax,rax
+    59 0000025C 4831FF              <1>  xor rdi,rdi
+    60 0000025F 4831F6              <1>  xor rsi,rsi
+   300                                      ; Cargo las coordenadas del zorro.
+   301 00000262 408A3425[CD000000]          mov     sil,[posZorroCol]
+   302 0000026A 408A3C25[CE000000]          mov     dil,[posZorroFil]
+   303                                  
+   304 00000272 803C25[37000000]41          cmp     byte[inputMov],'A'
+   305 0000027A 7463                        je      izquierdaZorro
+   306                                  
+   307 0000027C 803C25[37000000]44          cmp     byte[inputMov],'D'
+   308 00000284 0F8449010000                je      derechaZorro
+   309                                  
+   310 0000028A 803C25[37000000]57          cmp     byte[inputMov],'W'
+   311 00000292 0F842F020000                je      arribaZorro
+   312                                  
+   313 00000298 803C25[37000000]53          cmp     byte[inputMov],'S'
+   314 000002A0 0F8415030000                je      abajoZorro
+   315                                  
+   316 000002A6 803C25[37000000]51          cmp     byte[inputMov],'Q'
+   317 000002AE 0F84FB030000                je      diagonalArribaIzqZorro
+   318                                  
+   319 000002B4 803C25[37000000]45          cmp     byte[inputMov],'E'
+   320 000002BC 0F84E7040000                je      diagonalArribaDerZorro
+   321                                  
+   322 000002C2 803C25[37000000]5A          cmp     byte[inputMov],'Z'
+   323 000002CA 0F84D3050000                je      diagonalAbajoIzqZorro
+   324                                  
+   325 000002D0 803C25[37000000]43          cmp     byte[inputMov],'C'
+   326 000002D8 0F84BF060000                je      diagonalAbajoDerZorro
+   327                                  
+   328                                      ; Si llega aca se ingreso algo no valido
+   329 000002DE C3                          ret
+   330                                  
+   331                                  
+   332                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   333                                  ;                                        MOVIMIENTOS DEL ZORRO.
    334                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   335                                  ;                                        MOVIMIENTOS DEL ZORRO.
-   336                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   335                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   336                                  ; MOVER A LA IZQUIERDA.
    337                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   338                                  ; MOVER A LA IZQUIERDA.
-   339                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   340                                  izquierdaZorro:
-   341                                      ; Validar si no me voy fuera de los limites del talero.
-   342 000002C9 66FFCE                      dec     si 
-   343                                      mValidarLimTablero
+   338                                  izquierdaZorro:
+   339                                      ; Validar si no me voy fuera de los limites del talero.
+   340 000002DF 66FFCE                      dec     si 
+   341                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 000002CC 4883EC08            <2>  sub rsp,8
-    35 000002D0 E859FEFFFF          <2>  call validarFyC
-    36 000002D5 4883C408            <2>  add rsp,8
-    47 000002D9 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000002E1 0F85D1070000        <1>  jne errorMovimientoZorro
-   344                                  
-   345 000002E7 488B0C25[69000000]          mov     rcx,[posZorro]
-   346 000002EF 8A81[00000000]              mov     al,[matriz + rcx]
-   347 000002F5 4883E901                    sub     rcx,1
-   348                                  
-   349                                      ; Valida la existencia de oca.
-   350                                      mHayOca
-    28 000002F9 4883EC08            <1>  sub rsp,8
-    29 000002FD E892070000          <1>  call hayOca
-    30 00000302 4883C408            <1>  add rsp,8
-   351 00000306 803C25[36000000]53          cmp     byte[inputValido],'S'
-   352 0000030E 7440                        je      verSiComeIzq
-   353                                      ; Valida si es un casillero distinto de vacio.
-   354                                      mCasilleroVacio
-    40 00000310 4883EC08            <1>  sub rsp,8
-    41 00000314 E861070000          <1>  call casilleroVacio
-    42 00000319 4883C408            <1>  add rsp,8
-   355 0000031D 803C25[36000000]53          cmp     byte[inputValido],'S'
-   356 00000325 0F858D070000                jne     errorMovimientoZorro
-   357                                  
-   358 0000032B 8881[00000000]              mov     byte [matriz + rcx], al
-   359 00000331 48890C25[69000000]          mov     [posZorro], rcx
-   360 00000339 4883C101                    add     rcx,1
-   361 0000033D C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000002E2 4883EC08            <2>  sub rsp,8
+    35 000002E6 E84CFEFFFF          <2>  call validarFyC
+    36 000002EB 4883C408            <2>  add rsp,8
+    47 000002EF 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000002F7 0F85D1070000        <1>  jne errorMovimiento
+   342                                  
+   343 000002FD 488B0C25[69000000]          mov     rcx,[posZorro]
+   344 00000305 8A81[00000000]              mov     al,[matriz + rcx]
+   345 0000030B 4883E901                    sub     rcx,1
+   346                                  
+   347                                      ; Valida la existencia de oca.
+   348                                      mHayOca
+    28 0000030F 4883EC08            <1>  sub rsp,8
+    29 00000313 E892070000          <1>  call hayOca
+    30 00000318 4883C408            <1>  add rsp,8
+   349 0000031C 803C25[36000000]53          cmp     byte[inputValido],'S'
+   350 00000324 7440                        je      verSiComeIzq
+   351                                      ; Valida si es un casillero distinto de vacio.
+   352                                      mCasilleroVacio
+    40 00000326 4883EC08            <1>  sub rsp,8
+    41 0000032A E861070000          <1>  call casilleroVacio
+    42 0000032F 4883C408            <1>  add rsp,8
+   353 00000333 803C25[36000000]53          cmp     byte[inputValido],'S'
+   354 0000033B 0F858D070000                jne     errorMovimiento
+   355                                  
+   356 00000341 8881[00000000]              mov     byte [matriz + rcx], al
+   357 00000347 48890C25[69000000]          mov     [posZorro], rcx
+   358 0000034F 4883C101                    add     rcx,1
+   359 00000353 C681[00000000]20            mov     byte [matriz + rcx],' '
+   360                                  
+   361 0000035A FE0425[7E020000]            inc     byte[turno]
    362                                  
-   363 00000344 FE0425[7E020000]            inc     byte[turno]
+   363 00000361 E95F070000                  jmp     movValido
    364                                  
-   365 0000034B E95F070000                  jmp     movValido
-   366                                  
-   367                                  verSiComeIzq:
-   368                                      ; Validar si no me voy fuera de los limites del talero.
-   369 00000350 66FFCE                      dec     si 
-   370                                      mValidarLimTablero
+   365                                  verSiComeIzq:
+   366                                      ; Validar si no me voy fuera de los limites del talero.
+   367 00000366 66FFCE                      dec     si 
+   368                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000353 4883EC08            <2>  sub rsp,8
-    35 00000357 E8D2FDFFFF          <2>  call validarFyC
-    36 0000035C 4883C408            <2>  add rsp,8
-    47 00000360 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000368 0F854A070000        <1>  jne errorMovimientoZorro
-   371                                  
-   372                                      ; Valida si es un casillero distinto de vacio.
-   373 0000036E 4883E901                    sub     rcx,1
-   374                                      mCasilleroVacio
-    40 00000372 4883EC08            <1>  sub rsp,8
-    41 00000376 E8FF060000          <1>  call casilleroVacio
-    42 0000037B 4883C408            <1>  add rsp,8
-   375 0000037F 803C25[36000000]53          cmp     byte[inputValido],'S'
-   376 00000387 0F852B070000                jne     errorMovimientoZorro
-   377                                  
-   378 0000038D 8881[00000000]              mov     byte [matriz + rcx], al
-   379 00000393 48890C25[69000000]          mov     [posZorro], rcx
-   380                                  
-   381 0000039B 4883C101                    add     rcx,1
-   382 0000039F C681[00000000]20            mov     byte [matriz + rcx],' '
-   383 000003A6 4883C101                    add     rcx,1
-   384 000003AA C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000369 4883EC08            <2>  sub rsp,8
+    35 0000036D E8C5FDFFFF          <2>  call validarFyC
+    36 00000372 4883C408            <2>  add rsp,8
+    47 00000376 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 0000037E 0F854A070000        <1>  jne errorMovimiento
+   369                                  
+   370                                      ; Valida si es un casillero distinto de vacio.
+   371 00000384 4883E901                    sub     rcx,1
+   372                                      mCasilleroVacio
+    40 00000388 4883EC08            <1>  sub rsp,8
+    41 0000038C E8FF060000          <1>  call casilleroVacio
+    42 00000391 4883C408            <1>  add rsp,8
+   373 00000395 803C25[36000000]53          cmp     byte[inputValido],'S'
+   374 0000039D 0F852B070000                jne     errorMovimiento
+   375                                  
+   376 000003A3 8881[00000000]              mov     byte [matriz + rcx], al
+   377 000003A9 48890C25[69000000]          mov     [posZorro], rcx
+   378                                  
+   379 000003B1 4883C101                    add     rcx,1
+   380 000003B5 C681[00000000]20            mov     byte [matriz + rcx],' '
+   381 000003BC 4883C101                    add     rcx,1
+   382 000003C0 C681[00000000]20            mov     byte [matriz + rcx],' '
+   383                                  
+   384 000003C7 FE0425[80020000]            inc     byte[ocasCapturadas]
    385                                  
-   386 000003B1 FE0425[80020000]            inc     byte[ocasCapturadas]
+   386 000003CE E9F2060000                  jmp     movValido
    387                                  
-   388 000003B8 E9F2060000                  jmp     movValido
-   389                                  
+   388                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   389                                  ; MOVER A LA DERECHA.
    390                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   391                                  ; MOVER A LA DERECHA.
-   392                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   393                                  derechaZorro:
-   394                                     ; Validar si no me voy fuera de los limites del talero.
-   395 000003BD 66FFC6                      inc     si 
-   396                                      mValidarLimTablero
+   391                                  derechaZorro:
+   392                                     ; Validar si no me voy fuera de los limites del talero.
+   393 000003D3 66FFC6                      inc     si 
+   394                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 000003C0 4883EC08            <2>  sub rsp,8
-    35 000003C4 E865FDFFFF          <2>  call validarFyC
-    36 000003C9 4883C408            <2>  add rsp,8
-    47 000003CD 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000003D5 0F85DD060000        <1>  jne errorMovimientoZorro
-   397                                  
-   398 000003DB 488B0C25[69000000]          mov     rcx,[posZorro]
-   399 000003E3 8A81[00000000]              mov     al,[matriz + rcx]
-   400 000003E9 4883C101                    add     rcx,1
-   401                                  
-   402                                      ; Valida la existencia de oca.
-   403                                      mHayOca
-    28 000003ED 4883EC08            <1>  sub rsp,8
-    29 000003F1 E89E060000          <1>  call hayOca
-    30 000003F6 4883C408            <1>  add rsp,8
-   404 000003FA 803C25[36000000]53          cmp     byte[inputValido],'S'
-   405 00000402 7440                        je      verSiComeDer
-   406                                      ; Valida si es un casillero distinto de vacio.
-   407                                      mCasilleroVacio
-    40 00000404 4883EC08            <1>  sub rsp,8
-    41 00000408 E86D060000          <1>  call casilleroVacio
-    42 0000040D 4883C408            <1>  add rsp,8
-   408 00000411 803C25[36000000]53          cmp     byte[inputValido],'S'
-   409 00000419 0F8599060000                jne     errorMovimientoZorro
-   410                                  
-   411 0000041F 8881[00000000]              mov     byte [matriz + rcx], al
-   412 00000425 48890C25[69000000]          mov     [posZorro], rcx
-   413 0000042D 4883E901                    sub     rcx,1
-   414 00000431 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000003D6 4883EC08            <2>  sub rsp,8
+    35 000003DA E858FDFFFF          <2>  call validarFyC
+    36 000003DF 4883C408            <2>  add rsp,8
+    47 000003E3 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000003EB 0F85DD060000        <1>  jne errorMovimiento
+   395                                  
+   396 000003F1 488B0C25[69000000]          mov     rcx,[posZorro]
+   397 000003F9 8A81[00000000]              mov     al,[matriz + rcx]
+   398 000003FF 4883C101                    add     rcx,1
+   399                                  
+   400                                      ; Valida la existencia de oca.
+   401                                      mHayOca
+    28 00000403 4883EC08            <1>  sub rsp,8
+    29 00000407 E89E060000          <1>  call hayOca
+    30 0000040C 4883C408            <1>  add rsp,8
+   402 00000410 803C25[36000000]53          cmp     byte[inputValido],'S'
+   403 00000418 7440                        je      verSiComeDer
+   404                                      ; Valida si es un casillero distinto de vacio.
+   405                                      mCasilleroVacio
+    40 0000041A 4883EC08            <1>  sub rsp,8
+    41 0000041E E86D060000          <1>  call casilleroVacio
+    42 00000423 4883C408            <1>  add rsp,8
+   406 00000427 803C25[36000000]53          cmp     byte[inputValido],'S'
+   407 0000042F 0F8599060000                jne     errorMovimiento
+   408                                  
+   409 00000435 8881[00000000]              mov     byte [matriz + rcx], al
+   410 0000043B 48890C25[69000000]          mov     [posZorro], rcx
+   411 00000443 4883E901                    sub     rcx,1
+   412 00000447 C681[00000000]20            mov     byte [matriz + rcx],' '
+   413                                  
+   414 0000044E FE0425[7E020000]            inc     byte[turno]
    415                                  
-   416 00000438 FE0425[7E020000]            inc     byte[turno]
+   416 00000455 E96B060000                  jmp     movValido
    417                                  
-   418 0000043F E96B060000                  jmp     movValido
-   419                                  
-   420                                  verSiComeDer:
-   421                                      ; Validar si no me voy fuera de los limites del talero.
-   422 00000444 66FFC6                      inc     si 
-   423                                      mValidarLimTablero
+   418                                  verSiComeDer:
+   419                                      ; Validar si no me voy fuera de los limites del talero.
+   420 0000045A 66FFC6                      inc     si 
+   421                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000447 4883EC08            <2>  sub rsp,8
-    35 0000044B E8DEFCFFFF          <2>  call validarFyC
-    36 00000450 4883C408            <2>  add rsp,8
-    47 00000454 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 0000045C 0F8556060000        <1>  jne errorMovimientoZorro
-   424                                  
-   425                                      ; Valida si es un casillero distinto de vacio.
-   426 00000462 4883C101                    add     rcx,1
-   427                                      mCasilleroVacio
-    40 00000466 4883EC08            <1>  sub rsp,8
-    41 0000046A E80B060000          <1>  call casilleroVacio
-    42 0000046F 4883C408            <1>  add rsp,8
-   428 00000473 803C25[36000000]53          cmp     byte[inputValido],'S'
-   429 0000047B 0F8537060000                jne     errorMovimientoZorro
-   430                                  
-   431 00000481 8881[00000000]              mov     byte [matriz + rcx], al
-   432 00000487 48890C25[69000000]          mov     [posZorro], rcx
-   433                                  
-   434 0000048F 4883E901                    sub     rcx,1
-   435 00000493 C681[00000000]20            mov     byte [matriz + rcx],' '
-   436 0000049A 4883E901                    sub     rcx,1
-   437 0000049E C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 0000045D 4883EC08            <2>  sub rsp,8
+    35 00000461 E8D1FCFFFF          <2>  call validarFyC
+    36 00000466 4883C408            <2>  add rsp,8
+    47 0000046A 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000472 0F8556060000        <1>  jne errorMovimiento
+   422                                  
+   423                                      ; Valida si es un casillero distinto de vacio.
+   424 00000478 4883C101                    add     rcx,1
+   425                                      mCasilleroVacio
+    40 0000047C 4883EC08            <1>  sub rsp,8
+    41 00000480 E80B060000          <1>  call casilleroVacio
+    42 00000485 4883C408            <1>  add rsp,8
+   426 00000489 803C25[36000000]53          cmp     byte[inputValido],'S'
+   427 00000491 0F8537060000                jne     errorMovimiento
+   428                                  
+   429 00000497 8881[00000000]              mov     byte [matriz + rcx], al
+   430 0000049D 48890C25[69000000]          mov     [posZorro], rcx
+   431                                  
+   432 000004A5 4883E901                    sub     rcx,1
+   433 000004A9 C681[00000000]20            mov     byte [matriz + rcx],' '
+   434 000004B0 4883E901                    sub     rcx,1
+   435 000004B4 C681[00000000]20            mov     byte [matriz + rcx],' '
+   436                                  
+   437 000004BB FE0425[80020000]            inc     byte[ocasCapturadas]
    438                                  
-   439 000004A5 FE0425[80020000]            inc     byte[ocasCapturadas]
+   439 000004C2 E9FE050000                  jmp     movValido
    440                                  
-   441 000004AC E9FE050000                  jmp     movValido
-   442                                  
+   441                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   442                                  ; MOVER A LA ARRIBA.
    443                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   444                                  ; MOVER A LA ARRIBA.
-   445                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   446                                  arribaZorro:
-   447                                      ; Validar si no me voy fuera de los limites del talero.
-   448 000004B1 66FFCF                      dec     di
-   449                                      mValidarLimTablero
+   444                                  arribaZorro:
+   445                                      ; Validar si no me voy fuera de los limites del talero.
+   446 000004C7 66FFCF                      dec     di
+   447                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 000004B4 4883EC08            <2>  sub rsp,8
-    35 000004B8 E871FCFFFF          <2>  call validarFyC
-    36 000004BD 4883C408            <2>  add rsp,8
-    47 000004C1 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000004C9 0F85E9050000        <1>  jne errorMovimientoZorro
-   450                                  
-   451 000004CF 488B0C25[69000000]          mov     rcx,[posZorro]
-   452 000004D7 8A81[00000000]              mov     al,[matriz + rcx]
-   453 000004DD 4883E907                    sub     rcx,7
-   454                                  
-   455                                      ; Valida la existencia de oca.
-   456                                      mHayOca
-    28 000004E1 4883EC08            <1>  sub rsp,8
-    29 000004E5 E8AA050000          <1>  call hayOca
-    30 000004EA 4883C408            <1>  add rsp,8
-   457 000004EE 803C25[36000000]53          cmp     byte[inputValido],'S'
-   458 000004F6 7440                        je      verSiComeArriba
-   459                                      ; Valida si es un casillero distinto de vacio.
-   460                                      mCasilleroVacio
-    40 000004F8 4883EC08            <1>  sub rsp,8
-    41 000004FC E879050000          <1>  call casilleroVacio
-    42 00000501 4883C408            <1>  add rsp,8
-   461 00000505 803C25[36000000]53          cmp     byte[inputValido],'S'
-   462 0000050D 0F85A5050000                jne     errorMovimientoZorro
-   463                                  
-   464 00000513 8881[00000000]              mov     byte [matriz + rcx], al
-   465 00000519 4883C107                    add     rcx,7
-   466 0000051D 48890C25[69000000]          mov     [posZorro], rcx
-   467 00000525 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000004CA 4883EC08            <2>  sub rsp,8
+    35 000004CE E864FCFFFF          <2>  call validarFyC
+    36 000004D3 4883C408            <2>  add rsp,8
+    47 000004D7 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000004DF 0F85E9050000        <1>  jne errorMovimiento
+   448                                  
+   449 000004E5 488B0C25[69000000]          mov     rcx,[posZorro]
+   450 000004ED 8A81[00000000]              mov     al,[matriz + rcx]
+   451 000004F3 4883E907                    sub     rcx,7
+   452                                  
+   453                                      ; Valida la existencia de oca.
+   454                                      mHayOca
+    28 000004F7 4883EC08            <1>  sub rsp,8
+    29 000004FB E8AA050000          <1>  call hayOca
+    30 00000500 4883C408            <1>  add rsp,8
+   455 00000504 803C25[36000000]53          cmp     byte[inputValido],'S'
+   456 0000050C 7440                        je      verSiComeArriba
+   457                                      ; Valida si es un casillero distinto de vacio.
+   458                                      mCasilleroVacio
+    40 0000050E 4883EC08            <1>  sub rsp,8
+    41 00000512 E879050000          <1>  call casilleroVacio
+    42 00000517 4883C408            <1>  add rsp,8
+   459 0000051B 803C25[36000000]53          cmp     byte[inputValido],'S'
+   460 00000523 0F85A5050000                jne     errorMovimiento
+   461                                  
+   462 00000529 8881[00000000]              mov     byte [matriz + rcx], al
+   463 0000052F 4883C107                    add     rcx,7
+   464 00000533 48890C25[69000000]          mov     [posZorro], rcx
+   465 0000053B C681[00000000]20            mov     byte [matriz + rcx],' '
+   466                                  
+   467 00000542 FE0425[7E020000]            inc     byte[turno]
    468                                  
-   469 0000052C FE0425[7E020000]            inc     byte[turno]
+   469 00000549 E977050000                  jmp     movValido
    470                                  
-   471 00000533 E977050000                  jmp     movValido
-   472                                  
-   473                                  verSiComeArriba:
-   474                                      ; Validar si no me voy fuera de los limites del talero.
-   475 00000538 66FFCE                      dec     si 
-   476                                      mValidarLimTablero
+   471                                  verSiComeArriba:
+   472                                      ; Validar si no me voy fuera de los limites del talero.
+   473 0000054E 66FFCE                      dec     si 
+   474                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 0000053B 4883EC08            <2>  sub rsp,8
-    35 0000053F E8EAFBFFFF          <2>  call validarFyC
-    36 00000544 4883C408            <2>  add rsp,8
-    47 00000548 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000550 0F8562050000        <1>  jne errorMovimientoZorro
-   477                                  
-   478                                      ; Valida si es un casillero distinto de vacio.    
-   479 00000556 4883E907                    sub     rcx,7
-   480                                      mCasilleroVacio
-    40 0000055A 4883EC08            <1>  sub rsp,8
-    41 0000055E E817050000          <1>  call casilleroVacio
-    42 00000563 4883C408            <1>  add rsp,8
-   481 00000567 803C25[36000000]53          cmp     byte[inputValido],'S'
-   482 0000056F 0F8543050000                jne     errorMovimientoZorro
-   483                                  
-   484 00000575 8881[00000000]              mov     byte [matriz + rcx], al
-   485 0000057B 48890C25[69000000]          mov     [posZorro], rcx
-   486                                  
-   487 00000583 4883C107                    add     rcx,7
-   488 00000587 C681[00000000]20            mov     byte [matriz + rcx],' '
-   489 0000058E 4883C107                    add     rcx,7
-   490 00000592 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000551 4883EC08            <2>  sub rsp,8
+    35 00000555 E8DDFBFFFF          <2>  call validarFyC
+    36 0000055A 4883C408            <2>  add rsp,8
+    47 0000055E 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000566 0F8562050000        <1>  jne errorMovimiento
+   475                                  
+   476                                      ; Valida si es un casillero distinto de vacio.    
+   477 0000056C 4883E907                    sub     rcx,7
+   478                                      mCasilleroVacio
+    40 00000570 4883EC08            <1>  sub rsp,8
+    41 00000574 E817050000          <1>  call casilleroVacio
+    42 00000579 4883C408            <1>  add rsp,8
+   479 0000057D 803C25[36000000]53          cmp     byte[inputValido],'S'
+   480 00000585 0F8543050000                jne     errorMovimiento
+   481                                  
+   482 0000058B 8881[00000000]              mov     byte [matriz + rcx], al
+   483 00000591 48890C25[69000000]          mov     [posZorro], rcx
+   484                                  
+   485 00000599 4883C107                    add     rcx,7
+   486 0000059D C681[00000000]20            mov     byte [matriz + rcx],' '
+   487 000005A4 4883C107                    add     rcx,7
+   488 000005A8 C681[00000000]20            mov     byte [matriz + rcx],' '
+   489                                  
+   490 000005AF FE0425[80020000]            inc     byte[ocasCapturadas]
    491                                  
-   492 00000599 FE0425[80020000]            inc     byte[ocasCapturadas]
+   492 000005B6 E90A050000                  jmp     movValido
    493                                  
-   494 000005A0 E90A050000                  jmp     movValido
-   495                                  
+   494                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   495                                  ; MOVER A LA ABAJO.
    496                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   497                                  ; MOVER A LA ABAJO.
-   498                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   499                                  abajoZorro:
-   500                                      ; Validar si no me voy fuera de los limites del talero.
-   501 000005A5 66FFC7                      inc     di
-   502                                      mValidarLimTablero
+   497                                  abajoZorro:
+   498                                      ; Validar si no me voy fuera de los limites del talero.
+   499 000005BB 66FFC7                      inc     di
+   500                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 000005A8 4883EC08            <2>  sub rsp,8
-    35 000005AC E87DFBFFFF          <2>  call validarFyC
-    36 000005B1 4883C408            <2>  add rsp,8
-    47 000005B5 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000005BD 0F85F5040000        <1>  jne errorMovimientoZorro
-   503                                  
-   504 000005C3 488B0C25[69000000]          mov     rcx,[posZorro]
-   505 000005CB 8A81[00000000]              mov     al,[matriz + rcx]
-   506 000005D1 4883C107                    add     rcx,7
-   507                                  
-   508                                      ; Valida la existencia de oca.
-   509                                      mHayOca
-    28 000005D5 4883EC08            <1>  sub rsp,8
-    29 000005D9 E8B6040000          <1>  call hayOca
-    30 000005DE 4883C408            <1>  add rsp,8
-   510 000005E2 803C25[36000000]53          cmp     byte[inputValido],'S'
-   511 000005EA 7440                        je      verSiComeAbajo
-   512                                      ; Valida si es un casillero distinto de vacio.
-   513                                      mCasilleroVacio
-    40 000005EC 4883EC08            <1>  sub rsp,8
-    41 000005F0 E885040000          <1>  call casilleroVacio
-    42 000005F5 4883C408            <1>  add rsp,8
-   514 000005F9 803C25[36000000]53          cmp     byte[inputValido],'S'
-   515 00000601 0F85B1040000                jne     errorMovimientoZorro
-   516                                  
-   517 00000607 8881[00000000]              mov     byte [matriz + rcx], al
-   518 0000060D 4883E907                    sub     rcx,7
-   519 00000611 48890C25[69000000]          mov     [posZorro], rcx
-   520 00000619 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000005BE 4883EC08            <2>  sub rsp,8
+    35 000005C2 E870FBFFFF          <2>  call validarFyC
+    36 000005C7 4883C408            <2>  add rsp,8
+    47 000005CB 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000005D3 0F85F5040000        <1>  jne errorMovimiento
+   501                                  
+   502 000005D9 488B0C25[69000000]          mov     rcx,[posZorro]
+   503 000005E1 8A81[00000000]              mov     al,[matriz + rcx]
+   504 000005E7 4883C107                    add     rcx,7
+   505                                  
+   506                                      ; Valida la existencia de oca.
+   507                                      mHayOca
+    28 000005EB 4883EC08            <1>  sub rsp,8
+    29 000005EF E8B6040000          <1>  call hayOca
+    30 000005F4 4883C408            <1>  add rsp,8
+   508 000005F8 803C25[36000000]53          cmp     byte[inputValido],'S'
+   509 00000600 7440                        je      verSiComeAbajo
+   510                                      ; Valida si es un casillero distinto de vacio.
+   511                                      mCasilleroVacio
+    40 00000602 4883EC08            <1>  sub rsp,8
+    41 00000606 E885040000          <1>  call casilleroVacio
+    42 0000060B 4883C408            <1>  add rsp,8
+   512 0000060F 803C25[36000000]53          cmp     byte[inputValido],'S'
+   513 00000617 0F85B1040000                jne     errorMovimiento
+   514                                  
+   515 0000061D 8881[00000000]              mov     byte [matriz + rcx], al
+   516 00000623 4883E907                    sub     rcx,7
+   517 00000627 48890C25[69000000]          mov     [posZorro], rcx
+   518 0000062F C681[00000000]20            mov     byte [matriz + rcx],' '
+   519                                  
+   520 00000636 FE0425[7E020000]            inc     byte[turno]
    521                                  
-   522 00000620 FE0425[7E020000]            inc     byte[turno]
+   522 0000063D E983040000                  jmp     movValido 
    523                                  
-   524 00000627 E983040000                  jmp     movValido 
-   525                                  
-   526                                  verSiComeAbajo:
-   527                                      ; Validar si no me voy fuera de los limites del talero.
-   528 0000062C 66FFC7                      inc     di
-   529                                      mValidarLimTablero
+   524                                  verSiComeAbajo:
+   525                                      ; Validar si no me voy fuera de los limites del talero.
+   526 00000642 66FFC7                      inc     di
+   527                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 0000062F 4883EC08            <2>  sub rsp,8
-    35 00000633 E8F6FAFFFF          <2>  call validarFyC
-    36 00000638 4883C408            <2>  add rsp,8
-    47 0000063C 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000644 0F856E040000        <1>  jne errorMovimientoZorro
-   530                                  
-   531                                      ; Valida si es un casillero distinto de vacio.
-   532 0000064A 4883C107                    add     rcx,7
-   533                                      mCasilleroVacio
-    40 0000064E 4883EC08            <1>  sub rsp,8
-    41 00000652 E823040000          <1>  call casilleroVacio
-    42 00000657 4883C408            <1>  add rsp,8
-   534 0000065B 803C25[36000000]53          cmp     byte[inputValido],'S'
-   535 00000663 0F854F040000                jne     errorMovimientoZorro
-   536                                  
-   537 00000669 8881[00000000]              mov     byte [matriz + rcx], al
-   538 0000066F 48890C25[69000000]          mov     [posZorro], rcx
-   539                                  
-   540 00000677 4883E907                    sub     rcx,7
-   541 0000067B C681[00000000]20            mov     byte [matriz + rcx],' '
-   542 00000682 4883E907                    sub     rcx,7
-   543 00000686 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000645 4883EC08            <2>  sub rsp,8
+    35 00000649 E8E9FAFFFF          <2>  call validarFyC
+    36 0000064E 4883C408            <2>  add rsp,8
+    47 00000652 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 0000065A 0F856E040000        <1>  jne errorMovimiento
+   528                                  
+   529                                      ; Valida si es un casillero distinto de vacio.
+   530 00000660 4883C107                    add     rcx,7
+   531                                      mCasilleroVacio
+    40 00000664 4883EC08            <1>  sub rsp,8
+    41 00000668 E823040000          <1>  call casilleroVacio
+    42 0000066D 4883C408            <1>  add rsp,8
+   532 00000671 803C25[36000000]53          cmp     byte[inputValido],'S'
+   533 00000679 0F854F040000                jne     errorMovimiento
+   534                                  
+   535 0000067F 8881[00000000]              mov     byte [matriz + rcx], al
+   536 00000685 48890C25[69000000]          mov     [posZorro], rcx
+   537                                  
+   538 0000068D 4883E907                    sub     rcx,7
+   539 00000691 C681[00000000]20            mov     byte [matriz + rcx],' '
+   540 00000698 4883E907                    sub     rcx,7
+   541 0000069C C681[00000000]20            mov     byte [matriz + rcx],' '
+   542                                  
+   543 000006A3 FE0425[80020000]            inc     byte[ocasCapturadas]
    544                                  
-   545 0000068D FE0425[80020000]            inc     byte[ocasCapturadas]
+   545 000006AA E916040000                  jmp     movValido
    546                                  
-   547 00000694 E916040000                  jmp     movValido
-   548                                  
+   547                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   548                                  ; MOVER DIAGONAL ARRIBA IZQUIERDA.
    549                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   550                                  ; MOVER DIAGONAL ARRIBA IZQUIERDA.
-   551                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   552                                  diagonalArribaIzqZorro:   
-   553                                      ; Validar si no me voy fuera de los limites del talero.
-   554 00000699 66FFCF                      dec     di
-   555 0000069C 66FFCE                      dec     si
-   556                                      mValidarLimTablero
+   550                                  diagonalArribaIzqZorro:   
+   551                                      ; Validar si no me voy fuera de los limites del talero.
+   552 000006AF 66FFCF                      dec     di
+   553 000006B2 66FFCE                      dec     si
+   554                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 0000069F 4883EC08            <2>  sub rsp,8
-    35 000006A3 E886FAFFFF          <2>  call validarFyC
-    36 000006A8 4883C408            <2>  add rsp,8
-    47 000006AC 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000006B4 0F85FE030000        <1>  jne errorMovimientoZorro
-   557                                  
-   558 000006BA 488B0C25[69000000]          mov     rcx,[posZorro]
-   559 000006C2 8A81[00000000]              mov     al,[matriz + rcx]
-   560 000006C8 4883E908                    sub     rcx,8
-   561                                  
-   562                                      ; Valida la existencia de oca.
-   563                                      mHayOca
-    28 000006CC 4883EC08            <1>  sub rsp,8
-    29 000006D0 E8BF030000          <1>  call hayOca
-    30 000006D5 4883C408            <1>  add rsp,8
-   564 000006D9 803C25[36000000]53          cmp     byte[inputValido],'S'
-   565 000006E1 7440                        je      verSiComeArriIzqZorro
-   566                                      ; Valida si es un casillero distinto de vacio.
-   567                                      mCasilleroVacio
-    40 000006E3 4883EC08            <1>  sub rsp,8
-    41 000006E7 E88E030000          <1>  call casilleroVacio
-    42 000006EC 4883C408            <1>  add rsp,8
-   568 000006F0 803C25[36000000]53          cmp     byte[inputValido],'S'
-   569 000006F8 0F85BA030000                jne     errorMovimientoZorro
-   570                                  
-   571 000006FE 8881[00000000]              mov     byte [matriz + rcx], al
-   572 00000704 4883C108                    add     rcx,8
-   573 00000708 48890C25[69000000]          mov     [posZorro], rcx
-   574 00000710 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000006B5 4883EC08            <2>  sub rsp,8
+    35 000006B9 E879FAFFFF          <2>  call validarFyC
+    36 000006BE 4883C408            <2>  add rsp,8
+    47 000006C2 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000006CA 0F85FE030000        <1>  jne errorMovimiento
+   555                                  
+   556 000006D0 488B0C25[69000000]          mov     rcx,[posZorro]
+   557 000006D8 8A81[00000000]              mov     al,[matriz + rcx]
+   558 000006DE 4883E908                    sub     rcx,8
+   559                                  
+   560                                      ; Valida la existencia de oca.
+   561                                      mHayOca
+    28 000006E2 4883EC08            <1>  sub rsp,8
+    29 000006E6 E8BF030000          <1>  call hayOca
+    30 000006EB 4883C408            <1>  add rsp,8
+   562 000006EF 803C25[36000000]53          cmp     byte[inputValido],'S'
+   563 000006F7 7440                        je      verSiComeArriIzqZorro
+   564                                      ; Valida si es un casillero distinto de vacio.
+   565                                      mCasilleroVacio
+    40 000006F9 4883EC08            <1>  sub rsp,8
+    41 000006FD E88E030000          <1>  call casilleroVacio
+    42 00000702 4883C408            <1>  add rsp,8
+   566 00000706 803C25[36000000]53          cmp     byte[inputValido],'S'
+   567 0000070E 0F85BA030000                jne     errorMovimiento
+   568                                  
+   569 00000714 8881[00000000]              mov     byte [matriz + rcx], al
+   570 0000071A 4883C108                    add     rcx,8
+   571 0000071E 48890C25[69000000]          mov     [posZorro], rcx
+   572 00000726 C681[00000000]20            mov     byte [matriz + rcx],' '
+   573                                  
+   574 0000072D FE0425[7E020000]            inc     byte[turno]
    575                                  
-   576 00000717 FE0425[7E020000]            inc     byte[turno]
+   576 00000734 E98C030000                  jmp     movValido 
    577                                  
-   578 0000071E E98C030000                  jmp     movValido 
-   579                                  
-   580                                  verSiComeArriIzqZorro:
-   581                                      ; Validar si no me voy fuera de los limites del talero.
-   582 00000723 66FFCF                      dec     di
-   583 00000726 66FFCE                      dec     si
-   584                                      mValidarLimTablero
+   578                                  verSiComeArriIzqZorro:
+   579                                      ; Validar si no me voy fuera de los limites del talero.
+   580 00000739 66FFCF                      dec     di
+   581 0000073C 66FFCE                      dec     si
+   582                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000729 4883EC08            <2>  sub rsp,8
-    35 0000072D E8FCF9FFFF          <2>  call validarFyC
-    36 00000732 4883C408            <2>  add rsp,8
-    47 00000736 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 0000073E 0F8574030000        <1>  jne errorMovimientoZorro
-   585                                  
-   586 00000744 4883E908                    sub     rcx,8
-   587                                      ; Valida si es un casillero distinto de vacio.
-   588                                      mCasilleroVacio
-    40 00000748 4883EC08            <1>  sub rsp,8
-    41 0000074C E829030000          <1>  call casilleroVacio
-    42 00000751 4883C408            <1>  add rsp,8
-   589 00000755 803C25[36000000]53          cmp     byte[inputValido],'S'
-   590 0000075D 0F8555030000                jne     errorMovimientoZorro
-   591                                  
-   592 00000763 8881[00000000]              mov     byte [matriz + rcx], al
-   593 00000769 48890C25[69000000]          mov     [posZorro], rcx
-   594                                  
-   595 00000771 4883C108                    add     rcx,8
-   596 00000775 C681[00000000]20            mov     byte [matriz + rcx],' '
-   597 0000077C 4883C108                    add     rcx,8
-   598 00000780 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 0000073F 4883EC08            <2>  sub rsp,8
+    35 00000743 E8EFF9FFFF          <2>  call validarFyC
+    36 00000748 4883C408            <2>  add rsp,8
+    47 0000074C 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000754 0F8574030000        <1>  jne errorMovimiento
+   583                                  
+   584 0000075A 4883E908                    sub     rcx,8
+   585                                      ; Valida si es un casillero distinto de vacio.
+   586                                      mCasilleroVacio
+    40 0000075E 4883EC08            <1>  sub rsp,8
+    41 00000762 E829030000          <1>  call casilleroVacio
+    42 00000767 4883C408            <1>  add rsp,8
+   587 0000076B 803C25[36000000]53          cmp     byte[inputValido],'S'
+   588 00000773 0F8555030000                jne     errorMovimiento
+   589                                  
+   590 00000779 8881[00000000]              mov     byte [matriz + rcx], al
+   591 0000077F 48890C25[69000000]          mov     [posZorro], rcx
+   592                                  
+   593 00000787 4883C108                    add     rcx,8
+   594 0000078B C681[00000000]20            mov     byte [matriz + rcx],' '
+   595 00000792 4883C108                    add     rcx,8
+   596 00000796 C681[00000000]20            mov     byte [matriz + rcx],' '
+   597                                  
+   598 0000079D FE0425[80020000]            inc     byte[ocasCapturadas]
    599                                  
-   600 00000787 FE0425[80020000]            inc     byte[ocasCapturadas]
+   600 000007A4 E91C030000                  jmp     movValido
    601                                  
-   602 0000078E E91C030000                  jmp     movValido
-   603                                  
+   602                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   603                                  ; MOVER DIAGONAL ARRIBA DERECHA.
    604                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   605                                  ; MOVER DIAGONAL ARRIBA DERECHA.
-   606                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   607                                  diagonalArribaDerZorro:
-   608                                      ; Validar si no me voy fuera de los limites del talero.
-   609 00000793 66FFCF                      dec     di
-   610 00000796 66FFC6                      inc     si
-   611                                      mValidarLimTablero
+   605                                  diagonalArribaDerZorro:
+   606                                      ; Validar si no me voy fuera de los limites del talero.
+   607 000007A9 66FFCF                      dec     di
+   608 000007AC 66FFC6                      inc     si
+   609                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000799 4883EC08            <2>  sub rsp,8
-    35 0000079D E88CF9FFFF          <2>  call validarFyC
-    36 000007A2 4883C408            <2>  add rsp,8
-    47 000007A6 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000007AE 0F8504030000        <1>  jne errorMovimientoZorro
-   612                                  
-   613 000007B4 488B0C25[69000000]          mov     rcx,[posZorro]
-   614 000007BC 8A81[00000000]              mov     al,[matriz + rcx]
-   615 000007C2 4883E906                    sub     rcx,6
-   616                                  
-   617                                      ; Valida si es un casillero distinto de vacio.
-   618                                      mHayOca
-    28 000007C6 4883EC08            <1>  sub rsp,8
-    29 000007CA E8C5020000          <1>  call hayOca
-    30 000007CF 4883C408            <1>  add rsp,8
-   619 000007D3 803C25[36000000]53          cmp     byte[inputValido],'S'
-   620 000007DB 7440                        je      verSiComeArriDerZorro
-   621                                      mCasilleroVacio
-    40 000007DD 4883EC08            <1>  sub rsp,8
-    41 000007E1 E894020000          <1>  call casilleroVacio
-    42 000007E6 4883C408            <1>  add rsp,8
-   622 000007EA 803C25[36000000]53          cmp     byte[inputValido],'S'
-   623 000007F2 0F85C0020000                jne     errorMovimientoZorro
-   624                                  
-   625 000007F8 8881[00000000]              mov     byte [matriz + rcx], al
-   626 000007FE 4883C106                    add     rcx,6
-   627 00000802 48890C25[69000000]          mov     [posZorro], rcx
-   628 0000080A C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000007AF 4883EC08            <2>  sub rsp,8
+    35 000007B3 E87FF9FFFF          <2>  call validarFyC
+    36 000007B8 4883C408            <2>  add rsp,8
+    47 000007BC 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000007C4 0F8504030000        <1>  jne errorMovimiento
+   610                                  
+   611 000007CA 488B0C25[69000000]          mov     rcx,[posZorro]
+   612 000007D2 8A81[00000000]              mov     al,[matriz + rcx]
+   613 000007D8 4883E906                    sub     rcx,6
+   614                                  
+   615                                      ; Valida si es un casillero distinto de vacio.
+   616                                      mHayOca
+    28 000007DC 4883EC08            <1>  sub rsp,8
+    29 000007E0 E8C5020000          <1>  call hayOca
+    30 000007E5 4883C408            <1>  add rsp,8
+   617 000007E9 803C25[36000000]53          cmp     byte[inputValido],'S'
+   618 000007F1 7440                        je      verSiComeArriDerZorro
+   619                                      mCasilleroVacio
+    40 000007F3 4883EC08            <1>  sub rsp,8
+    41 000007F7 E894020000          <1>  call casilleroVacio
+    42 000007FC 4883C408            <1>  add rsp,8
+   620 00000800 803C25[36000000]53          cmp     byte[inputValido],'S'
+   621 00000808 0F85C0020000                jne     errorMovimiento
+   622                                  
+   623 0000080E 8881[00000000]              mov     byte [matriz + rcx], al
+   624 00000814 4883C106                    add     rcx,6
+   625 00000818 48890C25[69000000]          mov     [posZorro], rcx
+   626 00000820 C681[00000000]20            mov     byte [matriz + rcx],' '
+   627                                  
+   628 00000827 FE0425[7E020000]            inc     byte[turno]
    629                                  
-   630 00000811 FE0425[7E020000]            inc     byte[turno]
+   630 0000082E E992020000                  jmp     movValido 
    631                                  
-   632 00000818 E992020000                  jmp     movValido 
-   633                                  
-   634                                  verSiComeArriDerZorro:
-   635                                      ; Validar si no me voy fuera de los limites del talero.
-   636 0000081D 66FFCF                      dec     di
-   637 00000820 66FFC6                      inc     si
-   638                                      mValidarLimTablero
+   632                                  verSiComeArriDerZorro:
+   633                                      ; Validar si no me voy fuera de los limites del talero.
+   634 00000833 66FFCF                      dec     di
+   635 00000836 66FFC6                      inc     si
+   636                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000823 4883EC08            <2>  sub rsp,8
-    35 00000827 E802F9FFFF          <2>  call validarFyC
-    36 0000082C 4883C408            <2>  add rsp,8
-    47 00000830 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000838 0F857A020000        <1>  jne errorMovimientoZorro
-   639                                  
-   640 0000083E 4883E906                    sub     rcx,6
-   641                                      ; Valida si es un casillero distinto de vacio.
-   642                                      mCasilleroVacio
-    40 00000842 4883EC08            <1>  sub rsp,8
-    41 00000846 E82F020000          <1>  call casilleroVacio
-    42 0000084B 4883C408            <1>  add rsp,8
-   643 0000084F 803C25[36000000]53          cmp     byte[inputValido],'S'
-   644 00000857 0F855B020000                jne     errorMovimientoZorro
-   645                                  
-   646 0000085D 8881[00000000]              mov     byte [matriz + rcx], al
-   647 00000863 48890C25[69000000]          mov     [posZorro], rcx
-   648                                  
-   649 0000086B 4883C106                    add     rcx,6
-   650 0000086F C681[00000000]20            mov     byte [matriz + rcx],' '
-   651 00000876 4883C106                    add     rcx,6
-   652 0000087A C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000839 4883EC08            <2>  sub rsp,8
+    35 0000083D E8F5F8FFFF          <2>  call validarFyC
+    36 00000842 4883C408            <2>  add rsp,8
+    47 00000846 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 0000084E 0F857A020000        <1>  jne errorMovimiento
+   637                                  
+   638 00000854 4883E906                    sub     rcx,6
+   639                                      ; Valida si es un casillero distinto de vacio.
+   640                                      mCasilleroVacio
+    40 00000858 4883EC08            <1>  sub rsp,8
+    41 0000085C E82F020000          <1>  call casilleroVacio
+    42 00000861 4883C408            <1>  add rsp,8
+   641 00000865 803C25[36000000]53          cmp     byte[inputValido],'S'
+   642 0000086D 0F855B020000                jne     errorMovimiento
+   643                                  
+   644 00000873 8881[00000000]              mov     byte [matriz + rcx], al
+   645 00000879 48890C25[69000000]          mov     [posZorro], rcx
+   646                                  
+   647 00000881 4883C106                    add     rcx,6
+   648 00000885 C681[00000000]20            mov     byte [matriz + rcx],' '
+   649 0000088C 4883C106                    add     rcx,6
+   650 00000890 C681[00000000]20            mov     byte [matriz + rcx],' '
+   651                                  
+   652 00000897 FE0425[80020000]            inc     byte[ocasCapturadas]
    653                                  
-   654 00000881 FE0425[80020000]            inc     byte[ocasCapturadas]
+   654 0000089E E922020000                  jmp     movValido
    655                                  
-   656 00000888 E922020000                  jmp     movValido
-   657                                  
+   656                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   657                                  ; MOVER DIAGONAL ABAJO IZQUIERDA.
    658                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   659                                  ; MOVER DIAGONAL ABAJO IZQUIERDA.
-   660                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   661                                  diagonalAbajoIzqZorro:
-   662                                      ; Validar si no me voy fuera de los limites del talero.
-   663 0000088D 66FFC7                      inc     di
-   664 00000890 66FFCE                      dec     si
-   665                                      mValidarLimTablero
+   659                                  diagonalAbajoIzqZorro:
+   660                                      ; Validar si no me voy fuera de los limites del talero.
+   661 000008A3 66FFC7                      inc     di
+   662 000008A6 66FFCE                      dec     si
+   663                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000893 4883EC08            <2>  sub rsp,8
-    35 00000897 E892F8FFFF          <2>  call validarFyC
-    36 0000089C 4883C408            <2>  add rsp,8
-    47 000008A0 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000008A8 0F850A020000        <1>  jne errorMovimientoZorro
-   666                                  
-   667 000008AE 488B0C25[69000000]          mov     rcx,[posZorro]
-   668 000008B6 8A81[00000000]              mov     al,[matriz + rcx]
-   669 000008BC 4883C106                    add     rcx,6
-   670                                  
-   671                                      ; Valida la existencia de oca.
-   672                                      mHayOca
-    28 000008C0 4883EC08            <1>  sub rsp,8
-    29 000008C4 E8CB010000          <1>  call hayOca
-    30 000008C9 4883C408            <1>  add rsp,8
-   673 000008CD 803C25[36000000]53          cmp     byte[inputValido],'S'
-   674 000008D5 7440                        je      verSiComeAbajoIzqZorro
-   675                                      ; Valida si es un casillero distinto de vacio.
-   676                                      mCasilleroVacio
-    40 000008D7 4883EC08            <1>  sub rsp,8
-    41 000008DB E89A010000          <1>  call casilleroVacio
-    42 000008E0 4883C408            <1>  add rsp,8
-   677 000008E4 803C25[36000000]53          cmp     byte[inputValido],'S'
-   678 000008EC 0F85C6010000                jne     errorMovimientoZorro
-   679                                  
-   680 000008F2 8881[00000000]              mov     byte [matriz + rcx], al
-   681 000008F8 4883E906                    sub     rcx,6
-   682 000008FC 48890C25[69000000]          mov     [posZorro], rcx
-   683 00000904 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000008A9 4883EC08            <2>  sub rsp,8
+    35 000008AD E885F8FFFF          <2>  call validarFyC
+    36 000008B2 4883C408            <2>  add rsp,8
+    47 000008B6 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000008BE 0F850A020000        <1>  jne errorMovimiento
+   664                                  
+   665 000008C4 488B0C25[69000000]          mov     rcx,[posZorro]
+   666 000008CC 8A81[00000000]              mov     al,[matriz + rcx]
+   667 000008D2 4883C106                    add     rcx,6
+   668                                  
+   669                                      ; Valida la existencia de oca.
+   670                                      mHayOca
+    28 000008D6 4883EC08            <1>  sub rsp,8
+    29 000008DA E8CB010000          <1>  call hayOca
+    30 000008DF 4883C408            <1>  add rsp,8
+   671 000008E3 803C25[36000000]53          cmp     byte[inputValido],'S'
+   672 000008EB 7440                        je      verSiComeAbajoIzqZorro
+   673                                      ; Valida si es un casillero distinto de vacio.
+   674                                      mCasilleroVacio
+    40 000008ED 4883EC08            <1>  sub rsp,8
+    41 000008F1 E89A010000          <1>  call casilleroVacio
+    42 000008F6 4883C408            <1>  add rsp,8
+   675 000008FA 803C25[36000000]53          cmp     byte[inputValido],'S'
+   676 00000902 0F85C6010000                jne     errorMovimiento
+   677                                  
+   678 00000908 8881[00000000]              mov     byte [matriz + rcx], al
+   679 0000090E 4883E906                    sub     rcx,6
+   680 00000912 48890C25[69000000]          mov     [posZorro], rcx
+   681 0000091A C681[00000000]20            mov     byte [matriz + rcx],' '
+   682                                  
+   683 00000921 FE0425[7E020000]            inc     byte[turno]
    684                                  
-   685 0000090B FE0425[7E020000]            inc     byte[turno]
+   685 00000928 E998010000                  jmp     movValido 
    686                                  
-   687 00000912 E998010000                  jmp     movValido 
-   688                                  
-   689                                  verSiComeAbajoIzqZorro:
-   690                                      ; Validar si no me voy fuera de los limites del talero.
-   691 00000917 66FFC7                      inc     di
-   692 0000091A 66FFCE                      dec     si
-   693                                      mValidarLimTablero
+   687                                  verSiComeAbajoIzqZorro:
+   688                                      ; Validar si no me voy fuera de los limites del talero.
+   689 0000092D 66FFC7                      inc     di
+   690 00000930 66FFCE                      dec     si
+   691                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 0000091D 4883EC08            <2>  sub rsp,8
-    35 00000921 E808F8FFFF          <2>  call validarFyC
-    36 00000926 4883C408            <2>  add rsp,8
-    47 0000092A 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000932 0F8580010000        <1>  jne errorMovimientoZorro
-   694 00000938 4883C106                    add     rcx,6
-   695                                      ; Valida si es un casillero distinto de vacio.
-   696                                      mCasilleroVacio
-    40 0000093C 4883EC08            <1>  sub rsp,8
-    41 00000940 E835010000          <1>  call casilleroVacio
-    42 00000945 4883C408            <1>  add rsp,8
-   697 00000949 803C25[36000000]53          cmp     byte[inputValido],'S'
-   698 00000951 0F8561010000                jne     errorMovimientoZorro
-   699                                  
-   700 00000957 8881[00000000]              mov     byte [matriz + rcx], al
-   701 0000095D 48890C25[69000000]          mov     [posZorro], rcx
-   702                                  
-   703 00000965 4883E906                    sub     rcx,6
-   704 00000969 C681[00000000]20            mov     byte [matriz + rcx],' '
-   705 00000970 4883E906                    sub     rcx,6
-   706 00000974 C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000933 4883EC08            <2>  sub rsp,8
+    35 00000937 E8FBF7FFFF          <2>  call validarFyC
+    36 0000093C 4883C408            <2>  add rsp,8
+    47 00000940 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000948 0F8580010000        <1>  jne errorMovimiento
+   692 0000094E 4883C106                    add     rcx,6
+   693                                      ; Valida si es un casillero distinto de vacio.
+   694                                      mCasilleroVacio
+    40 00000952 4883EC08            <1>  sub rsp,8
+    41 00000956 E835010000          <1>  call casilleroVacio
+    42 0000095B 4883C408            <1>  add rsp,8
+   695 0000095F 803C25[36000000]53          cmp     byte[inputValido],'S'
+   696 00000967 0F8561010000                jne     errorMovimiento
+   697                                  
+   698 0000096D 8881[00000000]              mov     byte [matriz + rcx], al
+   699 00000973 48890C25[69000000]          mov     [posZorro], rcx
+   700                                  
+   701 0000097B 4883E906                    sub     rcx,6
+   702 0000097F C681[00000000]20            mov     byte [matriz + rcx],' '
+   703 00000986 4883E906                    sub     rcx,6
+   704 0000098A C681[00000000]20            mov     byte [matriz + rcx],' '
+   705                                  
+   706 00000991 FE0425[80020000]            inc     byte[ocasCapturadas]
    707                                  
-   708 0000097B FE0425[80020000]            inc     byte[ocasCapturadas]
+   708 00000998 E928010000                  jmp     movValido
    709                                  
-   710 00000982 E928010000                  jmp     movValido
-   711                                  
+   710                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   711                                  ; MOVER DIAGONAL ABAJO DERECHA.
    712                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   713                                  ; MOVER DIAGONAL ABAJO DERECHA.
-   714                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   715                                  diagonalAbajoDerZorro:
-   716                                      ; Validar si no me voy fuera de los limites del talero.
-   717 00000987 66FFC7                      inc     di
-   718 0000098A 66FFC6                      inc     si
-   719                                      mValidarLimTablero
+   713                                  diagonalAbajoDerZorro:
+   714                                      ; Validar si no me voy fuera de los limites del talero.
+   715 0000099D 66FFC7                      inc     di
+   716 000009A0 66FFC6                      inc     si
+   717                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 0000098D 4883EC08            <2>  sub rsp,8
-    35 00000991 E898F7FFFF          <2>  call validarFyC
-    36 00000996 4883C408            <2>  add rsp,8
-    47 0000099A 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 000009A2 0F8510010000        <1>  jne errorMovimientoZorro
-   720                                  
-   721 000009A8 488B0C25[69000000]          mov     rcx,[posZorro]
-   722 000009B0 8A81[00000000]              mov     al,[matriz + rcx]
-   723 000009B6 4883C108                    add     rcx,8
-   724                                  
-   725                                      ; Valida la existencia de oca.
-   726                                      mHayOca
-    28 000009BA 4883EC08            <1>  sub rsp,8
-    29 000009BE E8D1000000          <1>  call hayOca
-    30 000009C3 4883C408            <1>  add rsp,8
-   727 000009C7 803C25[36000000]53          cmp     byte[inputValido],'S'
-   728 000009CF 7440                        je      verSiComeAbajoDerZorro
-   729                                      ; Valida si es un casillero distinto de vacio.
-   730                                      mCasilleroVacio
-    40 000009D1 4883EC08            <1>  sub rsp,8
-    41 000009D5 E8A0000000          <1>  call casilleroVacio
-    42 000009DA 4883C408            <1>  add rsp,8
-   731 000009DE 803C25[36000000]53          cmp     byte[inputValido],'S'
-   732 000009E6 0F85CC000000                jne     errorMovimientoZorro
-   733                                  
-   734 000009EC 8881[00000000]              mov     byte [matriz + rcx], al
-   735 000009F2 4883E908                    sub     rcx,8
-   736 000009F6 48890C25[69000000]          mov     [posZorro], rcx
-   737 000009FE C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 000009A3 4883EC08            <2>  sub rsp,8
+    35 000009A7 E88BF7FFFF          <2>  call validarFyC
+    36 000009AC 4883C408            <2>  add rsp,8
+    47 000009B0 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 000009B8 0F8510010000        <1>  jne errorMovimiento
+   718                                  
+   719 000009BE 488B0C25[69000000]          mov     rcx,[posZorro]
+   720 000009C6 8A81[00000000]              mov     al,[matriz + rcx]
+   721 000009CC 4883C108                    add     rcx,8
+   722                                  
+   723                                      ; Valida la existencia de oca.
+   724                                      mHayOca
+    28 000009D0 4883EC08            <1>  sub rsp,8
+    29 000009D4 E8D1000000          <1>  call hayOca
+    30 000009D9 4883C408            <1>  add rsp,8
+   725 000009DD 803C25[36000000]53          cmp     byte[inputValido],'S'
+   726 000009E5 7440                        je      verSiComeAbajoDerZorro
+   727                                      ; Valida si es un casillero distinto de vacio.
+   728                                      mCasilleroVacio
+    40 000009E7 4883EC08            <1>  sub rsp,8
+    41 000009EB E8A0000000          <1>  call casilleroVacio
+    42 000009F0 4883C408            <1>  add rsp,8
+   729 000009F4 803C25[36000000]53          cmp     byte[inputValido],'S'
+   730 000009FC 0F85CC000000                jne     errorMovimiento
+   731                                  
+   732 00000A02 8881[00000000]              mov     byte [matriz + rcx], al
+   733 00000A08 4883E908                    sub     rcx,8
+   734 00000A0C 48890C25[69000000]          mov     [posZorro], rcx
+   735 00000A14 C681[00000000]20            mov     byte [matriz + rcx],' '
+   736                                  
+   737 00000A1B FE0425[7E020000]            inc     byte[turno]
    738                                  
-   739 00000A05 FE0425[7E020000]            inc     byte[turno]
+   739 00000A22 E99E000000                  jmp     movValido 
    740                                  
-   741 00000A0C E99E000000                  jmp     movValido 
-   742                                  
-   743                                  verSiComeAbajoDerZorro:
-   744                                      ; Validar si no me voy fuera de los limites del talero.
-   745 00000A11 66FFC7                      inc     di
-   746 00000A14 66FFC6                      inc     si
-   747                                      mValidarLimTablero
+   741                                  verSiComeAbajoDerZorro:
+   742                                      ; Validar si no me voy fuera de los limites del talero.
+   743 00000A27 66FFC7                      inc     di
+   744 00000A2A 66FFC6                      inc     si
+   745                                      mValidarLimTablero
     46                              <1>  mValidarFyC
-    34 00000A17 4883EC08            <2>  sub rsp,8
-    35 00000A1B E80EF7FFFF          <2>  call validarFyC
-    36 00000A20 4883C408            <2>  add rsp,8
-    47 00000A24 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-    48 00000A2C 0F8586000000        <1>  jne errorMovimientoZorro
-   748                                  
-   749 00000A32 4883C108                    add     rcx,8
-   750                                      ; Valida si es un casillero distinto de vacio.
-   751                                      mCasilleroVacio
-    40 00000A36 4883EC08            <1>  sub rsp,8
-    41 00000A3A E83B000000          <1>  call casilleroVacio
-    42 00000A3F 4883C408            <1>  add rsp,8
-   752 00000A43 803C25[36000000]53          cmp     byte[inputValido],'S'
-   753 00000A4B 756B                        jne     errorMovimientoZorro
-   754                                  
-   755 00000A4D 8881[00000000]              mov     byte [matriz + rcx], al
-   756 00000A53 48890C25[69000000]          mov     [posZorro], rcx
-   757                                  
-   758 00000A5B 4883E908                    sub     rcx,8
-   759 00000A5F C681[00000000]20            mov     byte [matriz + rcx],' '
-   760 00000A66 4883E908                    sub     rcx,8
-   761 00000A6A C681[00000000]20            mov     byte [matriz + rcx],' '
+    34 00000A2D 4883EC08            <2>  sub rsp,8
+    35 00000A31 E801F7FFFF          <2>  call validarFyC
+    36 00000A36 4883C408            <2>  add rsp,8
+    47 00000A3A 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000A42 0F8586000000        <1>  jne errorMovimiento
+   746                                  
+   747 00000A48 4883C108                    add     rcx,8
+   748                                      ; Valida si es un casillero distinto de vacio.
+   749                                      mCasilleroVacio
+    40 00000A4C 4883EC08            <1>  sub rsp,8
+    41 00000A50 E83B000000          <1>  call casilleroVacio
+    42 00000A55 4883C408            <1>  add rsp,8
+   750 00000A59 803C25[36000000]53          cmp     byte[inputValido],'S'
+   751 00000A61 756B                        jne     errorMovimiento
+   752                                  
+   753 00000A63 8881[00000000]              mov     byte [matriz + rcx], al
+   754 00000A69 48890C25[69000000]          mov     [posZorro], rcx
+   755                                  
+   756 00000A71 4883E908                    sub     rcx,8
+   757 00000A75 C681[00000000]20            mov     byte [matriz + rcx],' '
+   758 00000A7C 4883E908                    sub     rcx,8
+   759 00000A80 C681[00000000]20            mov     byte [matriz + rcx],' '
+   760                                  
+   761 00000A87 FE0425[80020000]            inc     byte[ocasCapturadas]
    762                                  
-   763 00000A71 FE0425[80020000]            inc     byte[ocasCapturadas]
+   763 00000A8E EB35                        jmp     movValido
    764                                  
-   765 00000A78 EB35                        jmp     movValido
-   766                                  
-   767                                  
+   765                                  
+   766                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   767                                  ; VALIDACIONES DE MOVIMIENTOS DEL ZORRO.
    768                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   769                                  ; VALIDACIONES DE MOVIMIENTOS DEL ZORRO.
-   770                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   771                                  ; Se chequea si el casillero al que se mueve el zorro es vacio.
-   772                                  casilleroVacio:
-   773 00000A7A C60425[36000000]4E          mov     byte[inputValido],'N'   
-   774 00000A82 80B9[00000000]20            cmp     byte [matriz + rcx],' '
-   775 00000A89 7523                        jne     pasoInvalido
-   776 00000A8B C60425[36000000]53          mov     byte[inputValido],'S'
-   777 00000A93 C3                          ret
-   778                                  
-   779                                  ; Se chequea si en el casillero al que quiere ir el zorro existe una oca.
-   780                                  hayOca:
-   781 00000A94 C60425[36000000]4E          mov     byte[inputValido],'N'   
-   782 00000A9C 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
-   783 00000AA3 7509                        jne     pasoInvalido
-   784 00000AA5 C60425[36000000]53          mov     byte[inputValido],'S'
-   785 00000AAD C3                          ret
-   786                                  
-   787                                  pasoInvalido:
-   788 00000AAE C3                          ret
-   789                                  
-   790                                  
-   791                                  ; Estas dos funciones validan si el zorro realizo algun movimiento correcto.
-   792                                  movValido:
-   793 00000AAF C60425[CF000000]53          mov     byte[completoMovZorro],'S'
-   794 00000AB7 C3                          ret 
-   795                                  
-   796                                  errorMovimientoZorro:
-   797 00000AB8 C60425[CF000000]4E          mov     byte[completoMovZorro],'N'
-   798 00000AC0 C3                          ret
+   769                                  ; Se chequea si el casillero al que se mueve el zorro es vacio.
+   770                                  casilleroVacio:
+   771 00000A90 C60425[36000000]4E          mov     byte[inputValido],'N'   
+   772 00000A98 80B9[00000000]20            cmp     byte [matriz + rcx],' '
+   773 00000A9F 7523                        jne     pasoInvalido
+   774 00000AA1 C60425[36000000]53          mov     byte[inputValido],'S'
+   775 00000AA9 C3                          ret
+   776                                  
+   777                                  ; Se chequea si en el casillero al que quiere ir el zorro existe una oca.
+   778                                  hayOca:
+   779 00000AAA C60425[36000000]4E          mov     byte[inputValido],'N'   
+   780 00000AB2 80B9[00000000]4F            cmp     byte [matriz + rcx],'O'
+   781 00000AB9 7509                        jne     pasoInvalido
+   782 00000ABB C60425[36000000]53          mov     byte[inputValido],'S'
+   783 00000AC3 C3                          ret
+   784                                  
+   785                                  pasoInvalido:
+   786 00000AC4 C3                          ret
+   787                                  
+   788                                  
+   789                                  ; Estas dos funciones validan si realizo algun movimiento correcto.
+   790                                  movValido:
+   791 00000AC5 C60425[CF000000]53          mov     byte[completoMov],'S'
+   792 00000ACD C3                          ret 
+   793                                  
+   794                                  errorMovimiento:
+   795 00000ACE C60425[CF000000]4E          mov     byte[completoMov],'N'
+   796 00000AD6 C3                          ret
+   797                                  
+   798                                  
    799                                  
-   800                                  
-   801                                  
+   800                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   801                                  ; CONDICION VICTORIA OCAS POR ACORRALAMIENTO DEL ZORRO.
    802                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   803                                  ; CONDICION VICTORIA OCAS POR ACORRALAMIENTO DEL ZORRO.
-   804                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   805                                  estaAcorralado:
-   806 00000AC1 4883EC08                    sub     rsp,8
-   807 00000AC5 E8CBF6FFFF                  call    buscarZorro
-   808 00000ACA 4883C408                    add     rsp,8
-   809                                  
-   810                                      mLimpieza
-    57 00000ACE 4831C9              <1>  xor rcx,rcx
-    58 00000AD1 4831C0              <1>  xor rax,rax
-    59 00000AD4 4831FF              <1>  xor rdi,rdi
-    60 00000AD7 4831F6              <1>  xor rsi,rsi
-   811 00000ADA 408A3425[CD000000]          mov     sil,[posZorroCol]
-   812 00000AE2 408A3C25[CE000000]          mov     dil,[posZorroFil]
-   813                                  
-   814                                      ; Valido por izq
-   815                                      ; Valido limite de tablero
-   816 00000AEA 40FECE                      dec     sil
-   817                                      mValidarLimAcorralamiento
+   803                                  estaAcorralado:
+   804 00000AD7 4883EC08                    sub     rsp,8
+   805 00000ADB E807F7FFFF                  call    buscarZorro
+   806 00000AE0 4883C408                    add     rsp,8
+   807                                  
+   808                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   809                                      mLimpieza
+    57 00000AE4 4831C9              <1>  xor rcx,rcx
+    58 00000AE7 4831C0              <1>  xor rax,rax
+    59 00000AEA 4831FF              <1>  xor rdi,rdi
+    60 00000AED 4831F6              <1>  xor rsi,rsi
+   810 00000AF0 408A3425[CD000000]          mov     sil,[posZorroCol]
+   811 00000AF8 408A3C25[CE000000]          mov     dil,[posZorroFil]
+   812                                  
+   813                                      ; Valido por izq
+   814                                      ; Valido limite de tablero
+   815 00000B00 40FECE                      dec     sil
+   816                                      mValidarLimAcorralamiento
     52                              <1>  mValidarFyC
-    34 00000AED 4883EC08            <2>  sub rsp,8
-    35 00000AF1 E838F6FFFF          <2>  call validarFyC
-    36 00000AF6 4883C408            <2>  add rsp,8
-    53 00000AFA 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-   818 00000B02 756D                        jne     paso1
-   819                                  
-   820                                      ; Valido si es un casillero vacio.
-   821 00000B04 488B0C25[69000000]          mov     rcx,[posZorro]
-   822 00000B0C 48FFC9                      dec     rcx
-   823                                      mCasilleroVacio
-    40 00000B0F 4883EC08            <1>  sub rsp,8
-    41 00000B13 E862FFFFFF          <1>  call casilleroVacio
-    42 00000B18 4883C408            <1>  add rsp,8
-   824 00000B1C 803C25[36000000]53          cmp     byte[inputValido],'S'
-   825 00000B24 744C                        je      noAcorralado
-   826                                  
-   827                                      ; Valido si es una oca si no es vacio.
-   828                                      mHayOca
-    28 00000B26 4883EC08            <1>  sub rsp,8
-    29 00000B2A E865FFFFFF          <1>  call hayOca
-    30 00000B2F 4883C408            <1>  add rsp,8
-   829 00000B33 803C25[36000000]53          cmp     byte[inputValido],'S'
-   830 00000B3B 7534                        jne     paso1
-   831                                  
-   832                                      ; Valido limite del tablero.
-   833 00000B3D 40FECE                      dec     sil
-   834                                      mValidarLimAcorralamiento
+    34 00000B03 4883EC08            <2>  sub rsp,8
+    35 00000B07 E82BF6FFFF          <2>  call validarFyC
+    36 00000B0C 4883C408            <2>  add rsp,8
+    53 00000B10 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+   817 00000B18 756D                        jne     paso1
+   818                                  
+   819                                      ; Valido si es un casillero vacio.
+   820 00000B1A 488B0C25[69000000]          mov     rcx,[posZorro]
+   821 00000B22 48FFC9                      dec     rcx
+   822                                      mCasilleroVacio
+    40 00000B25 4883EC08            <1>  sub rsp,8
+    41 00000B29 E862FFFFFF          <1>  call casilleroVacio
+    42 00000B2E 4883C408            <1>  add rsp,8
+   823 00000B32 803C25[36000000]53          cmp     byte[inputValido],'S'
+   824 00000B3A 744C                        je      noAcorralado
+   825                                  
+   826                                      ; Valido si es una oca si no es vacio.
+   827                                      mHayOca
+    28 00000B3C 4883EC08            <1>  sub rsp,8
+    29 00000B40 E865FFFFFF          <1>  call hayOca
+    30 00000B45 4883C408            <1>  add rsp,8
+   828 00000B49 803C25[36000000]53          cmp     byte[inputValido],'S'
+   829 00000B51 7534                        jne     paso1
+   830                                  
+   831                                      ; Valido limite del tablero.
+   832 00000B53 40FECE                      dec     sil
+   833                                      mValidarLimAcorralamiento
     52                              <1>  mValidarFyC
-    34 00000B40 4883EC08            <2>  sub rsp,8
-    35 00000B44 E8E5F5FFFF          <2>  call validarFyC
-    36 00000B49 4883C408            <2>  add rsp,8
-    53 00000B4D 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
-   835 00000B55 751A                        jne     paso1
-   836                                  
-   837                                      ; Valido si es vacio entonces no esta acorralado.
-   838 00000B57 48FFC9                      dec     rcx
-   839                                      mCasilleroVacio
-    40 00000B5A 4883EC08            <1>  sub rsp,8
-    41 00000B5E E817FFFFFF          <1>  call casilleroVacio
-    42 00000B63 4883C408            <1>  add rsp,8
-   840 00000B67 803C25[36000000]53          cmp     byte[inputValido],'S'
-   841 00000B6F 7401                        je      noAcorralado
+    34 00000B56 4883EC08            <2>  sub rsp,8
+    35 00000B5A E8D8F5FFFF          <2>  call validarFyC
+    36 00000B5F 4883C408            <2>  add rsp,8
+    53 00000B63 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+   834 00000B6B 751A                        jne     paso1
+   835                                  
+   836                                      ; Valido si es vacio entonces no esta acorralado.
+   837 00000B6D 48FFC9                      dec     rcx
+   838                                      mCasilleroVacio
+    40 00000B70 4883EC08            <1>  sub rsp,8
+    41 00000B74 E817FFFFFF          <1>  call casilleroVacio
+    42 00000B79 4883C408            <1>  add rsp,8
+   839 00000B7D 803C25[36000000]53          cmp     byte[inputValido],'S'
+   840 00000B85 7401                        je      noAcorralado
+   841                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,
    842                                  
    843                                  paso1:
-   844 00000B71 C3                          ret
+   844 00000B87 C3                          ret
    845                                  
-   846                                  
-   847                                  
-   848                                  noAcorralado:
-   849 00000B72 C3                          ret
+   846                                  noAcorralado:
+   847 00000B88 C3                          ret
+   848                                  
+   849                                  
    850                                  
    851                                  
    852                                  
-   853                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   854                                  ; MOVIMIENTO DE LAS OCAS.
-   855                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   856                                  turnoOcas:
-   857 00000B73 4883EC08                    sub     rsp,8
-   858 00000B77 E805000000                  call    movimientoOca
-   859 00000B7C 4883C408                    add     rsp,8   
+   853                                  
+   854                                  
+   855                                  
+   856                                  
+   857                                  
+   858                                  
+   859                                  
    860                                  
-   861 00000B80 C3                          ret
-   862                                  
-   863                                  movimientoOca:
-   864                                      ; Pido una oca del tablero.
-   865 00000B81 4883EC08                    sub     rsp,8
-   866 00000B85 E863000000                  call    obtener_pos_ocas
-   867 00000B8A 4883C408                    add     rsp,8
-   868                                  
-   869                                      ; Pido un movimiento para la oca seleccionada.
-   870 00000B8E 48BF-                       mov     rdi,msjMovimientoOcas
-   870 00000B90 [E000000000000000] 
-   871                                      mPuts                       
-    22 00000B98 4883EC08            <1>  sub rsp,8
-    23 00000B9C E8(00000000)        <1>  call puts
-    24 00000BA1 4883C408            <1>  add rsp,8
-   872 00000BA5 48BF-                       mov     rdi,inputMov
-   872 00000BA7 [3700000000000000] 
-   873                                      mGets
-    16 00000BAF 4883EC08            <1>  sub rsp,8
-    17 00000BB3 E8(00000000)        <1>  call gets
-    18 00000BB8 4883C408            <1>  add rsp,8
-   874                                  
-   875                                      ; Valido entrada.
-   876 00000BBC 4831C9                      xor     rcx,rcx
-   877 00000BBF 4831C0                      xor     rax,rax
-   878 00000BC2 803C25[37000000]41          cmp     byte[inputMov],'A'
-   879 00000BCA 0F844A010000                je      izquierdaOca
-   880                                  
-   881 00000BD0 803C25[37000000]44          cmp     byte[inputMov],'D'
-   882 00000BD8 0F847C010000                je      derechaOca
-   883                                  
-   884 00000BDE 803C25[37000000]53          cmp     byte[inputMov],'S'
-   885 00000BE6 0F84AA010000                je      abajoOca
-   886                                  
-   887 00000BEC C3                          ret
-   888                                  
-   889                                  ; Obtengo una pos de alguna oca de tablero de juego.
-   890                                  obtener_pos_ocas:
-   891 00000BED 48BF-                   	mov		rdi,msjIngFilCol
-   891 00000BEF [0E01000000000000] 
-   892                                  	call	mPrintf
-   892                              <1>  call :
-    10 00000BF7 4883EC08            <1>  sub rsp,8
-    11 00000BFB E8(00000000)        <1>  call printf
-    12 00000C00 4883C408            <1>  add rsp,8
+   861                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   862                                  ; MOVIMIENTO DE LAS OCAS.
+   863                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   864                                  turnoOcas:
+   865 00000B89 C60425[CF000000]4E          mov     byte[completoMov],'N'
+   866 00000B91 4883EC08                    sub     rsp,8
+   867 00000B95 E82C000000                  call    movimientoOca
+   868 00000B9A 4883C408                    add     rsp,8   
+   869                                  
+   870 00000B9E 803C25[CF000000]53          cmp     byte[completoMov],'S'
+   871 00000BA6 0F8431F6FFFF                je      completoMovConExito
+   872                                  
+   873 00000BAC 48BF-                       mov     rdi,msjError
+   873 00000BAE [F501000000000000] 
+   874                                      mPuts 
+    22 00000BB6 4883EC08            <1>  sub rsp,8
+    23 00000BBA E8(00000000)        <1>  call puts
+    24 00000BBF 4883C408            <1>  add rsp,8
+   875                                  
+   876 00000BC3 EBC4                        jmp     turnoOcas
+   877                                  
+   878                                  ; Fin del turno oca.
+   879                                  completoMovConExitoOca:
+   880 00000BC5 C3                          ret
+   881                                  
+   882                                  movimientoOca:
+   883                                      ; Pido una oca del tablero.
+   884 00000BC6 4883EC08                    sub     rsp,8
+   885 00000BCA E879000000                  call    obtener_pos_ocas
+   886 00000BCF 4883C408                    add     rsp,8
+   887                                  
+   888                                      ; Pido un movimiento para la oca seleccionada.
+   889 00000BD3 48BF-                       mov     rdi,msjMovimientoOcas
+   889 00000BD5 [E000000000000000] 
+   890                                      mPuts                       
+    22 00000BDD 4883EC08            <1>  sub rsp,8
+    23 00000BE1 E8(00000000)        <1>  call puts
+    24 00000BE6 4883C408            <1>  add rsp,8
+   891 00000BEA 48BF-                       mov     rdi,inputMov
+   891 00000BEC [3700000000000000] 
+   892                                      mGets
+    16 00000BF4 4883EC08            <1>  sub rsp,8
+    17 00000BF8 E8(00000000)        <1>  call gets
+    18 00000BFD 4883C408            <1>  add rsp,8
    893                                  
-   894 00000C04 48BF-                       mov		rdi,inputFilCol	
-   894 00000C06 [0000000000000000] 
-   895                                      mGets    
-    16 00000C0E 4883EC08            <1>  sub rsp,8
-    17 00000C12 E8(00000000)        <1>  call gets
-    18 00000C17 4883C408            <1>  add rsp,8
-   896                                  
-   897                                      ; Valido la entrada de fila y columna.
-   898 00000C1B 4883EC08                    sub     rsp,8
-   899 00000C1F E87B000000                  call    validarEntradaFyC
-   900 00000C24 4883C408                    add     rsp,8
+   894                                      ; Valido entrada.
+   895                                      mLimpieza
+    57 00000C01 4831C9              <1>  xor rcx,rcx
+    58 00000C04 4831C0              <1>  xor rax,rax
+    59 00000C07 4831FF              <1>  xor rdi,rdi
+    60 00000C0A 4831F6              <1>  xor rsi,rsi
+   896 00000C0D 408A3425[34000000]          mov     sil,[colOca]
+   897 00000C15 408A3C25[32000000]          mov     dil,[filOca]
+   898                                  
+   899 00000C1D 803C25[37000000]41          cmp     byte[inputMov],'A'
+   900 00000C25 0F8462010000                je      izquierdaOca
    901                                  
-   902 00000C28 4829FF                      sub     rdi,rdi
-   903 00000C2B 4829F6                      sub     rsi,rsi
+   902 00000C2B 803C25[37000000]44          cmp     byte[inputMov],'D'
+   903 00000C33 0F84C4010000                je      derechaOca
    904                                  
-   905                                      ; Guardo la posicion X e Y de la oca seleccionada
-   906 00000C2E 488B3C25[32000000]          mov     rdi,[filOca]
-   907 00000C36 488B3425[34000000]          mov     rsi,[colOca]
-   908                                  
-   909 00000C3E 4883EC08                    sub     rsp,8
-   910 00000C42 E8E7F4FFFF                  call    validarFyC
-   911 00000C47 4883C408                    add     rsp,8
-   912                                  
-   913 00000C4B 803C25[36000000]53          cmp     byte[inputValido],'S'
-   914 00000C53 741C                        je      continuar
+   905 00000C39 803C25[37000000]53          cmp     byte[inputMov],'S'
+   906 00000C41 0F8426020000                je      abajoOca
+   907                                  
+   908 00000C47 C3                          ret
+   909                                  
+   910                                  
+   911                                  ; Obtengo una pos de alguna oca de tablero de juego.
+   912                                  obtener_pos_ocas:
+   913 00000C48 48BF-                   	mov		rdi,msjIngFilCol
+   913 00000C4A [0E01000000000000] 
+   914                                  	call	mPrintf
+   914                              <1>  call :
+    10 00000C52 4883EC08            <1>  sub rsp,8
+    11 00000C56 E8(00000000)        <1>  call printf
+    12 00000C5B 4883C408            <1>  add rsp,8
    915                                  
-   916 00000C55 48BF-                       mov     rdi,msjErrorInput
-   916 00000C57 [7901000000000000] 
-   917                                      mPuts
-    22 00000C5F 4883EC08            <1>  sub rsp,8
-    23 00000C63 E8(00000000)        <1>  call puts
-    24 00000C68 4883C408            <1>  add rsp,8
+   916 00000C5F 48BF-                       mov		rdi,inputFilCol	
+   916 00000C61 [0000000000000000] 
+   917                                      mGets    
+    16 00000C69 4883EC08            <1>  sub rsp,8
+    17 00000C6D E8(00000000)        <1>  call gets
+    18 00000C72 4883C408            <1>  add rsp,8
    918                                  
-   919 00000C6C E97CFFFFFF                  jmp     obtener_pos_ocas
-   920                                  
-   921                                  
-   922                                  continuar:
-   923 00000C71 4883EC08                    sub     rsp,8
-   924 00000C75 E865000000                  call    calcDesplaz
-   925 00000C7A 4883C408                    add     rsp,8
+   919                                      ; Valido la entrada de fila y columna.
+   920 00000C76 4883EC08                    sub     rsp,8
+   921 00000C7A E893000000                  call    validarEntradaFyC
+   922 00000C7F 4883C408                    add     rsp,8
+   923                                  
+   924 00000C83 4829FF                      sub     rdi,rdi
+   925 00000C86 4829F6                      sub     rsi,rsi
    926                                  
-   927 00000C7E 4D31C0                      xor     r8,r8
-   928 00000C81 66448B0425-                 mov     r8w,[desplazOca]
-   928 00000C86 [83020000]         
-   929                                  
-   930 00000C8A 4831F6                      xor     rsi,rsi
-   931 00000C8D 418AB0[00000000]        	mov		sil,byte[matriz+r8]
-   932 00000C94 4080FE4F                    cmp     sil,'O'
-   933 00000C98 0F8550010000                jne     noOca
+   927                                      ; Guardo la posicion X e Y de la oca seleccionada
+   928 00000C89 488B3C25[32000000]          mov     rdi,[filOca]
+   929 00000C91 488B3425[34000000]          mov     rsi,[colOca]
+   930                                  
+   931 00000C99 4883EC08                    sub     rsp,8
+   932 00000C9D E895F4FFFF                  call    validarFyC
+   933 00000CA2 4883C408                    add     rsp,8
    934                                  
-   935                                  
-   936 00000C9E C3                          ret
+   935 00000CA6 803C25[36000000]53          cmp     byte[inputValido],'S'
+   936 00000CAE 741C                        je      continuar
    937                                  
-   938                                  
-   939                                  validarEntradaFyC:
-   940 00000C9F 48BF-                       mov     rdi,inputFilCol
-   940 00000CA1 [0000000000000000] 
-   941 00000CA9 48BE-                       mov     rsi,formatInputFilCol
-   941 00000CAB [6C02000000000000] 
-   942 00000CB3 48BA-                       mov     rdx,filOca
-   942 00000CB5 [3200000000000000] 
-   943 00000CBD 48B9-                       mov     rcx,colOca
-   943 00000CBF [3400000000000000] 
-   944                                  
-   945 00000CC7 4883EC08                	sub		rsp,8
-   946 00000CCB E8(00000000)            	call	sscanf
-   947 00000CD0 4883C408                	add		rsp,8  
+   938 00000CB0 48BF-                       mov     rdi,msjErrorInput
+   938 00000CB2 [7901000000000000] 
+   939                                      mPuts
+    22 00000CBA 4883EC08            <1>  sub rsp,8
+    23 00000CBE E8(00000000)        <1>  call puts
+    24 00000CC3 4883C408            <1>  add rsp,8
+   940                                  
+   941 00000CC7 E97CFFFFFF                  jmp     obtener_pos_ocas
+   942                                  
+   943                                  
+   944                                  continuar:
+   945 00000CCC 4883EC08                    sub     rsp,8
+   946 00000CD0 E87D000000                  call    calcDesplaz
+   947 00000CD5 4883C408                    add     rsp,8
    948                                  
-   949 00000CD4 4883F802                    cmp     rax,2
-   950 00000CD8 0F8C78F4FFFF                jl      invalido
+   949 00000CD9 4D31C0                      xor     r8,r8
+   950 00000CDC 66448B0425-                 mov     r8w,[desplazOca]
+   950 00000CE1 [83020000]         
    951                                  
-   952 00000CDE C3                          ret
-   953                                  
-   954                                  
-   955                                  
-   956                                  calcDesplaz:
-   957 00000CDF 66C70425[83020000]-         mov     word[desplazOca],0
-   957 00000CE7 0000               
-   958 00000CE9 668B0425[32000000]      	mov		ax,[filOca]			;ax = fil
-   959 00000CF1 66FFC8                  	dec		ax						;fil-1
-   960 00000CF4 666BC001                	imul	ax,LONG_ELEM	;(fil-1) * longElem
-   961 00000CF8 666BC007                	imul	ax,CANT_COL	;(fil-1) * longElem * cantCol = (fil-1) * longFil
-   962                                  
-   963 00000CFC 6689C3                  	mov		bx,ax				;bx = desplazOca en fil
-   964                                  	
-   965 00000CFF 668B0425[34000000]      	mov		ax,[colOca]			;ax = col
-   966 00000D07 66FFC8                  	dec		ax						;col-1
-   967 00000D0A 666BC001                	imul	ax,LONG_ELEM	;(col-1) * longElem
-   968                                  
-   969 00000D0E 6601C3                  	add		bx,ax				;bx = desplazOca total
-   970 00000D11 66011C25[83020000]          add     word[desplazOca], bx
-   971                                  
-   972 00000D19 C3                          ret
-   973                                  
-   974                                  
-   975                                  
+   952 00000CE5 4831F6                      xor     rsi,rsi
+   953 00000CE8 418AB0[00000000]        	mov		sil,byte[matriz+r8]
+   954 00000CEF 4080FE4F                    cmp     sil,'O'
+   955 00000CF3 7501                        jne     noOca
+   956                                  
+   957 00000CF5 C3                          ret
+   958                                  
+   959                                  
+   960                                  noOca:
+   961 00000CF6 48BF-                       mov     rdi,msjNoHayOca
+   961 00000CF8 [B201000000000000] 
+   962                                      mPuts
+    22 00000D00 4883EC08            <1>  sub rsp,8
+    23 00000D04 E8(00000000)        <1>  call puts
+    24 00000D09 4883C408            <1>  add rsp,8
+   963                                      
+   964 00000D0D E936FFFFFF                  jmp     obtener_pos_ocas
+   965                                  
+   966                                  
+   967                                  validarEntradaFyC:
+   968 00000D12 48BF-                       mov     rdi,inputFilCol
+   968 00000D14 [0000000000000000] 
+   969 00000D1C 48BE-                       mov     rsi,formatInputFilCol
+   969 00000D1E [6C02000000000000] 
+   970 00000D26 48BA-                       mov     rdx,filOca
+   970 00000D28 [3200000000000000] 
+   971 00000D30 48B9-                       mov     rcx,colOca
+   971 00000D32 [3400000000000000] 
+   972                                  
+   973 00000D3A 4883EC08                	sub		rsp,8
+   974 00000D3E E8(00000000)            	call	sscanf
+   975 00000D43 4883C408                	add		rsp,8  
    976                                  
-   977                                  izquierdaOca:
-   978 00000D1A 668B0C25[83020000]          mov     cx,[desplazOca]
-   979 00000D22 8A81[00000000]              mov     al,[matriz + rcx]
-   980 00000D28 4883E901                    sub     rcx,1
-   981 00000D2C 80B9[00000000]20            cmp     byte [matriz + rcx],' '
-   982 00000D33 0F8599000000                jne     errorMovimientoOca
-   983                                  
-   984 00000D39 8881[00000000]              mov     byte [matriz + rcx], al
-   985 00000D3F 48890C25[83020000]          mov     [desplazOca], rcx
-   986 00000D47 4883C101                    add     rcx,1
-   987 00000D4B C681[00000000]20            mov     byte [matriz + rcx],' '
-   988                                  
-   989 00000D52 FE0C25[7E020000]            dec     byte[turno]
-   990                                  
-   991 00000D59 C3                          ret
-   992                                  
-   993                                  
-   994                                  derechaOca:
-   995 00000D5A 668B0C25[83020000]          mov     cx,[desplazOca]
-   996 00000D62 8A81[00000000]              mov     al,[matriz + rcx]
-   997 00000D68 4883C101                    add     rcx,1
-   998 00000D6C 80B9[00000000]20            cmp     byte [matriz + rcx],' '
-   999 00000D73 755D                        jne     errorMovimientoOca
+   977 00000D47 4883F802                    cmp     rax,2
+   978 00000D4B 0F8C0EF4FFFF                jl      invalido
+   979                                  
+   980 00000D51 C3                          ret
+   981                                  
+   982                                  
+   983                                  calcDesplaz:
+   984 00000D52 66C70425[83020000]-         mov     word[desplazOca],0
+   984 00000D5A 0000               
+   985 00000D5C 668B0425[32000000]      	mov		ax,[filOca]			;ax = fil
+   986 00000D64 66FFC8                  	dec		ax						;fil-1
+   987 00000D67 666BC001                	imul	ax,LONG_ELEM	;(fil-1) * longElem
+   988 00000D6B 666BC007                	imul	ax,CANT_COL	;(fil-1) * longElem * cantCol = (fil-1) * longFil
+   989                                  
+   990 00000D6F 6689C3                  	mov		bx,ax				;bx = desplazOca en fil
+   991                                  	
+   992 00000D72 668B0425[34000000]      	mov		ax,[colOca]			;ax = col
+   993 00000D7A 66FFC8                  	dec		ax						;col-1
+   994 00000D7D 666BC001                	imul	ax,LONG_ELEM	;(col-1) * longElem
+   995                                  
+   996 00000D81 6601C3                  	add		bx,ax				;bx = desplazOca total
+   997 00000D84 66011C25[83020000]          add     word[desplazOca], bx
+   998                                  
+   999 00000D8C C3                          ret
   1000                                  
-  1001 00000D75 8881[00000000]              mov     byte [matriz + rcx], al
-  1002 00000D7B 48890C25[83020000]          mov     [desplazOca], rcx
-  1003 00000D83 4883E901                    sub     rcx,1
-  1004 00000D87 C681[00000000]20            mov     byte [matriz + rcx],' '
-  1005                                  
-  1006 00000D8E FE0C25[7E020000]            dec     byte[turno]
-  1007 00000D95 C3                          ret
-  1008                                  
-  1009                                  
-  1010                                  abajoOca:
-  1011 00000D96 668B0C25[83020000]          mov     cx,[desplazOca]
-  1012 00000D9E 8A81[00000000]              mov     al,[matriz + rcx]
-  1013 00000DA4 4883C107                    add     rcx,7
-  1014 00000DA8 80B9[00000000]20            cmp     byte [matriz + rcx],' '
-  1015 00000DAF 7521                        jne     errorMovimientoOca
-  1016                                  
-  1017 00000DB1 8881[00000000]              mov     byte [matriz + rcx], al
-  1018 00000DB7 4883E907                    sub     rcx,7
-  1019 00000DBB 48890C25[83020000]          mov     [desplazOca], rcx
-  1020 00000DC3 C681[00000000]20            mov     byte [matriz + rcx],' '
-  1021 00000DCA FE0C25[7E020000]            dec     byte[turno]    
-  1022 00000DD1 C3                          ret 
-  1023                                  
+  1001                                  
+  1002                                  izquierdaOca:
+  1003                                      ; Validar si no me voy fuera de los limites del talero.
+  1004 00000D8D 66FFCE                      dec     si 
+  1005                                      mValidarLimTablero
+    46                              <1>  mValidarFyC
+    34 00000D90 4883EC08            <2>  sub rsp,8
+    35 00000D94 E89EF3FFFF          <2>  call validarFyC
+    36 00000D99 4883C408            <2>  add rsp,8
+    47 00000D9D 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000DA5 0F8523FDFFFF        <1>  jne errorMovimiento
+  1006                                  
+  1007 00000DAB 668B0C25[83020000]          mov     cx,[desplazOca]
+  1008 00000DB3 8A81[00000000]              mov     al,[matriz + rcx]
+  1009 00000DB9 4883E901                    sub     rcx,1
+  1010                                  
+  1011                                      ; Valida si es un casillero distinto de vacio.
+  1012                                      mCasilleroVacio
+    40 00000DBD 4883EC08            <1>  sub rsp,8
+    41 00000DC1 E8CAFCFFFF          <1>  call casilleroVacio
+    42 00000DC6 4883C408            <1>  add rsp,8
+  1013 00000DCA 803C25[36000000]53          cmp     byte[inputValido],'S'
+  1014 00000DD2 0F85F6FCFFFF                jne     errorMovimiento
+  1015                                  
+  1016 00000DD8 8881[00000000]              mov     byte [matriz + rcx], al
+  1017 00000DDE 48890C25[83020000]          mov     [desplazOca], rcx
+  1018 00000DE6 4883C101                    add     rcx,1
+  1019 00000DEA C681[00000000]20            mov     byte [matriz + rcx],' '
+  1020                                  
+  1021 00000DF1 FE0C25[7E020000]            dec     byte[turno]
+  1022                                  
+  1023 00000DF8 E9C8FCFFFF                  jmp     movValido
   1024                                  
   1025                                  
-  1026                                  errorMovimientoOca:
-  1027 00000DD2 48BF-                       mov     rdi,msjError
-  1027 00000DD4 [F501000000000000] 
-  1028                                      mPuts 
-    22 00000DDC 4883EC08            <1>  sub rsp,8
-    23 00000DE0 E8(00000000)        <1>  call puts
-    24 00000DE5 4883C408            <1>  add rsp,8
-  1029 00000DE9 E916F3FFFF                  jmp      errorMovOca
-  1030                                  
-  1031                                  noOca:
-  1032 00000DEE 48BF-                       mov     rdi,msjNoHayOca
-  1032 00000DF0 [B201000000000000] 
-  1033                                      mPuts
-    22 00000DF8 4883EC08            <1>  sub rsp,8
-    23 00000DFC E8(00000000)        <1>  call puts
-    24 00000E01 4883C408            <1>  add rsp,8
-  1034 00000E05 E9FAF2FFFF                  jmp     errorMovOca
+  1026                                  
+  1027                                  derechaOca:
+  1028                                      ; Validar si no me voy fuera de los limites del talero.
+  1029 00000DFD 66FFC6                      inc     si 
+  1030                                      mValidarLimTablero
+    46                              <1>  mValidarFyC
+    34 00000E00 4883EC08            <2>  sub rsp,8
+    35 00000E04 E82EF3FFFF          <2>  call validarFyC
+    36 00000E09 4883C408            <2>  add rsp,8
+    47 00000E0D 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000E15 0F85B3FCFFFF        <1>  jne errorMovimiento
+  1031                                  
+  1032 00000E1B 668B0C25[83020000]          mov     cx,[desplazOca]
+  1033 00000E23 8A81[00000000]              mov     al,[matriz + rcx]
+  1034 00000E29 4883C101                    add     rcx,1
+  1035                                  
+  1036                                      mCasilleroVacio
+    40 00000E2D 4883EC08            <1>  sub rsp,8
+    41 00000E31 E85AFCFFFF          <1>  call casilleroVacio
+    42 00000E36 4883C408            <1>  add rsp,8
+  1037 00000E3A 803C25[36000000]53          cmp     byte[inputValido],'S'
+  1038 00000E42 0F8586FCFFFF                jne     errorMovimiento
+  1039                                  
+  1040 00000E48 8881[00000000]              mov     byte [matriz + rcx], al
+  1041 00000E4E 48890C25[83020000]          mov     [desplazOca], rcx
+  1042 00000E56 4883E901                    sub     rcx,1
+  1043 00000E5A C681[00000000]20            mov     byte [matriz + rcx],' '
+  1044                                  
+  1045 00000E61 FE0C25[7E020000]            dec     byte[turno]
+  1046                                  
+  1047 00000E68 E958FCFFFF                  jmp     movValido
+  1048                                  
+  1049                                  
+  1050                                  abajoOca:
+  1051                                      ; Validar si no me voy fuera de los limites del talero.
+  1052 00000E6D 66FFC7                      inc     di 
+  1053                                      mValidarLimTablero
+    46                              <1>  mValidarFyC
+    34 00000E70 4883EC08            <2>  sub rsp,8
+    35 00000E74 E8BEF2FFFF          <2>  call validarFyC
+    36 00000E79 4883C408            <2>  add rsp,8
+    47 00000E7D 803C25[36000000]53  <1>  cmp byte[inputValido],'S'
+    48 00000E85 0F8543FCFFFF        <1>  jne errorMovimiento
+  1054                                  
+  1055 00000E8B 668B0C25[83020000]          mov     cx,[desplazOca]
+  1056 00000E93 8A81[00000000]              mov     al,[matriz + rcx]
+  1057 00000E99 4883C107                    add     rcx,7
+  1058                                  
+  1059                                      mCasilleroVacio
+    40 00000E9D 4883EC08            <1>  sub rsp,8
+    41 00000EA1 E8EAFBFFFF          <1>  call casilleroVacio
+    42 00000EA6 4883C408            <1>  add rsp,8
+  1060 00000EAA 803C25[36000000]53          cmp     byte[inputValido],'S'
+  1061 00000EB2 0F8516FCFFFF                jne     errorMovimiento
+  1062                                  
+  1063 00000EB8 8881[00000000]              mov     byte [matriz + rcx], al
+  1064 00000EBE 4883E907                    sub     rcx,7
+  1065 00000EC2 48890C25[83020000]          mov     [desplazOca], rcx
+  1066 00000ECA C681[00000000]20            mov     byte [matriz + rcx],' '
+  1067 00000ED1 FE0C25[7E020000]            dec     byte[turno]    
+  1068                                  
+  1069 00000ED8 E9E8FBFFFF                  jmp     movValido
+  1070                                  
+  1071                                  
+  1072                                  

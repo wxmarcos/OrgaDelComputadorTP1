@@ -45,7 +45,7 @@ extern  system
 %macro mValidarLimTablero 0 
     mValidarFyC
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 %endmacro
 
 %macro mValidarLimAcorralamiento 0 
@@ -61,14 +61,12 @@ extern  system
 %endmacro
 
 
-
-
 section	.data
     matriz      db  "#","#","O","O","O","#","#"
                 db  "#","#","O","O","O","#","#"
                 db  "O","O","O","O","O","O","O"
                 db  "O"," "," "," "," "," ","O"
-                db  "O","O","O","X"," "," ","O"
+                db  "O"," "," ","X"," "," ","O"
                 db  "#","#"," "," "," "," ","#"
                 db  "#","#"," "," "," ","#","#",0
                                 
@@ -109,21 +107,17 @@ section .bss
     posZorro                resb    100
     posZorroCol             resb    1
     posZorroFil             resb    1
-    completoMovZorro        resb    1   ;S completo movimiento correctamente y N para no.
-
+    completoMov             resb    1   ;S completo movimiento correctamente y N para no.
+    finDelJuedo             resb    1   ;X sale e Y no.
 
 
 section .text
-
 main:
     ; Limpia la pantalla
     ; mov     rdi,cmdClear
     ; sub		rsp,8	
     ; call    system    
 	; add		rsp,8	
-
-    jmp     estaAcorralado
-
 
     ; Printea el mapa actualizado
     mov     rdi, columnas
@@ -148,18 +142,19 @@ comioZorro:
     call    turnoZorro
     add     rsp,8
 
+    cmp     byte[finDelJuedo],'X'
+    je      fin
+
     ; Printea el mapa actualizado
     mov     rdi, columnas
     mPuts
     mov     rdi, separador
     mPuts
-
     xor     rdi,rdi
     mov     rdi,matriz
     sub		rsp,8	
     call    printMapa    
 	add		rsp,8
-
     mov     rdi, msjOcasCapturadas
     mov     sil, [ocasCapturadas]
     mPrintf
@@ -170,12 +165,12 @@ comioZorro:
     cmp     dil,12
     je      fin
 
+    ; Chequear si el zorro comio una oca si es asi bifurca a main.
     xor     rcx,rcx
     mov     cl,byte[turno]
     cmp     cl,0
     je      main
-    
-errorMovOca:
+
     ; Siguen las Ocas
     sub     rsp,8
     call    turnoOcas
@@ -226,11 +221,21 @@ turnoZorro:
     call    buscarZorro
     add     rsp,8
 
+    ; Se pide una opcion de movimiento, si es x sale y guarda la partida
+    mov     byte[finDelJuedo],'N'
+    mov     rdi,msgMovimientoZorro
+    mPuts                       
+    mov     rdi,inputMov
+    mGets
+
+    cmp     byte[inputMov],'X'
+    je      comandoSalirYGuardar
+
     sub     rsp,8
     call    movimientoZorro   
     add     rsp,8
 
-    cmp     byte[completoMovZorro],'S'
+    cmp     byte[completoMov],'S'
     je      completoMovConExito
 
     mov     rdi,msjError
@@ -239,6 +244,11 @@ turnoZorro:
 
 ; Fin del turno zorro.
 completoMovConExito:
+    ret
+
+; Fin del juego guardar la partida y salir.
+comandoSalirYGuardar:
+    mov     byte[finDelJuedo],'X'
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -286,17 +296,8 @@ actualizarPosicion:
 ; VALIDAR INGRESO POR TECLADO DEL MOVIMIENTO DEL ZORRO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 movimientoZorro:
-    mov     rdi,msgMovimientoZorro
-    mPuts                       
-
-    mov     rdi,inputMov
-    mGets
-
-    xor     rcx,rcx
-    xor     rax,rax
-    xor     rdi,rdi
-    xor     rsi,rsi 
-
+    mLimpieza
+    ; Cargo las coordenadas del zorro.
     mov     sil,[posZorroCol]
     mov     dil,[posZorroFil]
 
@@ -324,9 +325,6 @@ movimientoZorro:
     cmp     byte[inputMov],'C'
     je      diagonalAbajoDerZorro
 
-    cmp     byte[inputMov],'X'
-    je      fin
-
     ; Si llega aca se ingreso algo no valido
     ret
 
@@ -353,7 +351,7 @@ izquierdaZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -373,7 +371,7 @@ verSiComeIzq:
     sub     rcx,1
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -406,7 +404,7 @@ derechaZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -426,7 +424,7 @@ verSiComeDer:
     add     rcx,1
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -459,7 +457,7 @@ arribaZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     add     rcx,7
@@ -479,7 +477,7 @@ verSiComeArriba:
     sub     rcx,7
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -512,7 +510,7 @@ abajoZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     sub     rcx,7
@@ -532,7 +530,7 @@ verSiComeAbajo:
     add     rcx,7
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -566,7 +564,7 @@ diagonalArribaIzqZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     add     rcx,8
@@ -587,7 +585,7 @@ verSiComeArriIzqZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -620,7 +618,7 @@ diagonalArribaDerZorro:
     je      verSiComeArriDerZorro
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     add     rcx,6
@@ -641,7 +639,7 @@ verSiComeArriDerZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -675,7 +673,7 @@ diagonalAbajoIzqZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     sub     rcx,6
@@ -695,7 +693,7 @@ verSiComeAbajoIzqZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -729,7 +727,7 @@ diagonalAbajoDerZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     sub     rcx,8
@@ -750,7 +748,7 @@ verSiComeAbajoDerZorro:
     ; Valida si es un casillero distinto de vacio.
     mCasilleroVacio
     cmp     byte[inputValido],'S'
-    jne     errorMovimientoZorro
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [posZorro], rcx
@@ -788,13 +786,13 @@ pasoInvalido:
     ret
 
 
-; Estas dos funciones validan si el zorro realizo algun movimiento correcto.
+; Estas dos funciones validan si realizo algun movimiento correcto.
 movValido:
-    mov     byte[completoMovZorro],'S'
+    mov     byte[completoMov],'S'
     ret 
 
-errorMovimientoZorro:
-    mov     byte[completoMovZorro],'N'
+errorMovimiento:
+    mov     byte[completoMov],'N'
     ret
 
 
@@ -845,8 +843,6 @@ estaAcorralado:
 paso1:
     ret
 
-
-
 noAcorralado:
     ret
 
@@ -856,10 +852,21 @@ noAcorralado:
 ; MOVIMIENTO DE LAS OCAS.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 turnoOcas:
+    mov     byte[completoMov],'N'
     sub     rsp,8
     call    movimientoOca
     add     rsp,8   
 
+    cmp     byte[completoMov],'S'
+    je      completoMovConExito
+
+    mov     rdi,msjError
+    mPuts 
+
+    jmp     turnoOcas
+
+; Fin del turno oca.
+completoMovConExitoOca:
     ret
 
 movimientoOca:
@@ -875,8 +882,10 @@ movimientoOca:
     mGets
 
     ; Valido entrada.
-    xor     rcx,rcx
-    xor     rax,rax
+    mLimpieza
+    mov     sil,[colOca]
+    mov     dil,[filOca]
+
     cmp     byte[inputMov],'A'
     je      izquierdaOca
 
@@ -887,6 +896,7 @@ movimientoOca:
     je      abajoOca
 
     ret
+
 
 ; Obtengo una pos de alguna oca de tablero de juego.
 obtener_pos_ocas:
@@ -934,8 +944,14 @@ continuar:
     cmp     sil,'O'
     jne     noOca
 
-
     ret
+
+
+noOca:
+    mov     rdi,msjNoHayOca
+    mPuts
+    
+    jmp     obtener_pos_ocas
 
 
 validarEntradaFyC:
@@ -952,7 +968,6 @@ validarEntradaFyC:
     jl      invalido
 
     ret
-
 
 
 calcDesplaz:
@@ -974,14 +989,19 @@ calcDesplaz:
     ret
 
 
-
-
 izquierdaOca:
+    ; Validar si no me voy fuera de los limites del talero.
+    dec     si 
+    mValidarLimTablero
+
     mov     cx,[desplazOca]
     mov     al,[matriz + rcx]
     sub     rcx,1
-    cmp     byte [matriz + rcx],' '
-    jne     errorMovimientoOca
+
+    ; Valida si es un casillero distinto de vacio.
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [desplazOca], rcx
@@ -990,15 +1010,22 @@ izquierdaOca:
 
     dec     byte[turno]
 
-    ret
+    jmp     movValido
+
 
 
 derechaOca:
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     si 
+    mValidarLimTablero
+
     mov     cx,[desplazOca]
     mov     al,[matriz + rcx]
     add     rcx,1
-    cmp     byte [matriz + rcx],' '
-    jne     errorMovimientoOca
+
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     mov     [desplazOca], rcx
@@ -1006,31 +1033,30 @@ derechaOca:
     mov     byte [matriz + rcx],' '
 
     dec     byte[turno]
-    ret
+
+    jmp     movValido
 
 
 abajoOca:
+    ; Validar si no me voy fuera de los limites del talero.
+    inc     di 
+    mValidarLimTablero
+
     mov     cx,[desplazOca]
     mov     al,[matriz + rcx]
     add     rcx,7
-    cmp     byte [matriz + rcx],' '
-    jne     errorMovimientoOca
+
+    mCasilleroVacio
+    cmp     byte[inputValido],'S'
+    jne     errorMovimiento
 
     mov     byte [matriz + rcx], al
     sub     rcx,7
     mov     [desplazOca], rcx
     mov     byte [matriz + rcx],' '
     dec     byte[turno]    
-    ret 
+
+    jmp     movValido
 
 
 
-errorMovimientoOca:
-    mov     rdi,msjError
-    mPuts 
-    jmp      errorMovOca
-
-noOca:
-    mov     rdi,msjNoHayOca
-    mPuts
-    jmp     errorMovOca

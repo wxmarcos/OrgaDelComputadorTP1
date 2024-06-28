@@ -20,10 +20,10 @@ section .data
     fileMatriz		            db	"guardado.dat",0 
     modoLectura		            db	"rb+",0	
     modoEscritura               db  "wb+",0
-    msgErrorAperturaArchivo       	db	"Error en apertura de archivo Mapa",0
+    msgErrorApertura       	db	"Error en apertura de archivo Mapa",0
 
 section .bss
-
+    estadisticas        resb 9
     matriz              resb 50
     idMapa              resq 1
 
@@ -47,7 +47,17 @@ main:
 	jle		errorAperturaArchivo
 	mov     [idMapa],rax
 
-     ;; Se lee el archivo y se guarda lo leido en matriz
+    ;; Se lee el archivo y se guarda lo leido en estadisticas
+    mov     rdi,estadisticas        ;Param 1: campo de memoria para guardar el registro q se leerá del archivo
+    mov     rsi,9                   ;Param 2: Tamaño del registro en bytes
+    mov     rdx,1                   ;Param 3: Cantidad de registros a leer (** usamos siempre 1 **)
+    mov		rcx,[idMapa]            ;Param 4: id o handle del archivo (obtenido en fopen)
+
+	sub		rsp,8  
+	call    fread
+	add		rsp,8
+
+    ;; Se lee el archivo y se guarda lo leido en matriz
     mov     rdi,matriz              ;Param 1: campo de memoria para guardar el registro q se leerá del archivo
     mov     rsi,50                  ;Param 2: Tamaño del registro en bytes
     mov     rdx,1                   ;Param 3: Cantidad de registros a leer (** usamos siempre 1 **)
@@ -85,6 +95,17 @@ main:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; SE GUARDA EL MAPA EN EL ARCHIVO 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;Se guarda el mapa en el archivo 
+    mov     rdi, estadisticas            ; Param 1: dirección de memoria con el registro a escribir
+    mov     rsi, 9      ; Param 2: tamaño del registro en bytes
+    mov     rdx, 1                  ; Param 3: cantidad de registros a escribir (1)
+    mov     rax, [idMapa]    ; Obtener el handle del archivo (obtenido en fopen)
+
+    ; Alinear la pila a 16 bytes antes de llamar a fwrite
+    sub     rsp, 8                  ; Espacio para alinear la pila
+    mov     rcx, rax                ; Enviar el handle del archivo a rcx, aunque no se use en fwrite
+    call    fwrite
+    add     rsp, 8                  ; Restaurar la pila
 
     ;;Se guarda el mapa en el archivo 
     mov     rdi, matriz            ; Param 1: dirección de memoria con el registro a escribir
@@ -120,7 +141,7 @@ cerrarArchivo:
     ret
 
 errorAperturaArchivo:
-    mPuts   msgErrorAperturaArchivo
+    mPuts   msgErrorApertura
 	jmp		endProg
 
 endProg:

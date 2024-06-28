@@ -20,7 +20,7 @@ section .data
     fileMatriz		            db	"guardado.dat",0 
     modoLectura		            db	"rb+",0	
     modoEscritura               db  "wb+",0
-    errorAperturaArchivo       	db	"Error en apertura de archivo Mapa",0
+    msgErrorAperturaArchivo       	db	"Error en apertura de archivo Mapa",0
 
 section .bss
 
@@ -44,7 +44,7 @@ main:
     add     rsp,8
 
 	cmp		rax,0
-	jle		errorAperturaArchivo
+	jle		msgErrorAperturaArchivo
 	mov     [idMapa],rax
 
      ;; Se lee el archivo y se guarda lo leido en matriz
@@ -80,7 +80,7 @@ main:
     add     rsp,8
 
 	cmp		rax,0
-	jle		errorAperturaArchivo
+	jle		msgErrorAperturaArchivo
 	mov     [idMapa],rax
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; SE GUARDA EL MAPA EN EL ARCHIVO 
@@ -120,7 +120,7 @@ cerrarArchivo:
     ret
 
 errorAperturaArchivo:
-    mPuts   errorAperturaArchivo
+    mPuts   msgErrorAperturaArchivo
 	jmp		endProg
 
 endProg:

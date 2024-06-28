@@ -44,7 +44,7 @@ main:
     add     rsp,8
 
 	cmp		rax,0
-	jle		msgErrorAperturaArchivo
+	jle		errorAperturaArchivo
 	mov     [idMapa],rax
 
      ;; Se lee el archivo y se guarda lo leido en matriz
@@ -80,7 +80,7 @@ main:
     add     rsp,8
 
 	cmp		rax,0
-	jle		msgErrorAperturaArchivo
+	jle		errorAperturaArchivo
 	mov     [idMapa],rax
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; SE GUARDA EL MAPA EN EL ARCHIVO 

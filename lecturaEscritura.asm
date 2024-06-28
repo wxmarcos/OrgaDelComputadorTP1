@@ -20,7 +20,7 @@ section .data
     fileMatriz		            db	"guardado.dat",0 
     modoLectura		            db	"rb+",0	
     modoEscritura               db  "wb+",0
-    msgErrOpenLis       	    db	"Error en apertura de archivo Mapa",0
+    errorAperturaArchivo       	db	"Error en apertura de archivo Mapa",0
 
 section .bss
 
@@ -120,7 +120,7 @@ cerrarArchivo:
     ret
 
 errorAperturaArchivo:
-    mPuts   msgErrOpenLis
+    mPuts   errorAperturaArchivo
 	jmp		endProg
 
 endProg:

@@ -1,0 +1,143 @@
+     1                                  global main
+     2                                  
+     3                                  %macro mPuts 1
+     4                                      mov     rdi,%1
+     5                                      sub     rsp,8
+     6                                      call    puts
+     7                                      add     rsp,8
+     8                                  %endmacro
+     9                                  
+    10                                  extern  puts
+    11                                  extern  fopen
+    12                                  extern  fwrite
+    13                                  extern  fclose
+    14                                  extern  fread
+    15                                  extern  printf
+    16                                  extern  printMapa
+    17                                  
+    18                                  section .data
+    19                                      
+    20 00000000 677561726461646F2E-         fileMatriz		            db	"guardado.dat",0 
+    20 00000009 64617400           
+    21 0000000D 72622B00                    modoLectura		            db	"rb+",0	
+    22 00000011 77622B00                    modoEscritura               db  "wb+",0
+    23 00000015 4572726F7220656E20-         msgErrOpenLis       	    db	"Error en apertura de archivo Mapa",0
+    23 0000001E 617065727475726120-
+    23 00000027 646520617263686976-
+    23 00000030 6F204D61706100     
+    24                                  
+    25                                  section .bss
+    26                                  
+    27 00000000 <res 32h>                   matriz              resb 50
+    28 00000032 ????????????????            idMapa              resq 1
+    29                                  
+    30                                  section .text
+    31                                  main:
+    32                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    33                                  ; SE GUARDA EL MAPA EN EL ARCHIVO 
+    34                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    35                                  
+    36                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    37                                  ; ABRO EL ARCHIVO PARA LECTURA
+    38                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    39 00000000 48BF-                       mov     rdi,fileMatriz   ;Param 1: string con nombre del archivo (finaliza con 0 binario!!)
+    39 00000002 [0000000000000000] 
+    40 0000000A 48BE-                       mov     rsi,modoLectura 
+    40 0000000C [0D00000000000000] 
+    41                                  
+    42 00000014 4883EC08                    sub     rsp,8
+    43 00000018 E8(00000000)                call    fopen
+    44 0000001D 4883C408                    add     rsp,8
+    45                                  
+    46 00000021 4883F800                	cmp		rax,0
+    47 00000025 0F8EDB000000            	jle		errorAperturaArchivo
+    48 0000002B 48890425[32000000]      	mov     [idMapa],rax
+    49                                  
+    50                                       ;; Se lee el archivo y se guarda lo leido en matriz
+    51 00000033 48BF-                       mov     rdi,matriz              ;Param 1: campo de memoria para guardar el registro q se leerá del archivo
+    51 00000035 [0000000000000000] 
+    52 0000003D BE32000000                  mov     rsi,50                  ;Param 2: Tamaño del registro en bytes
+    53 00000042 BA01000000                  mov     rdx,1                   ;Param 3: Cantidad de registros a leer (** usamos siempre 1 **)
+    54 00000047 488B0C25[32000000]          mov		rcx,[idMapa]     ;Param 4: id o handle del archivo (obtenido en fopen)
+    55                                  
+    56 0000004F 4883EC08                	sub		rsp,8  
+    57 00000053 E8(00000000)            	call    fread
+    58 00000058 4883C408                	add		rsp,8
+    59                                  
+    60                                  
+    61                                       ;Printeo el mapa
+    62 0000005C 4831FF                      xor     rdi,rdi
+    63 0000005F 48BF-                       mov     rdi,matriz
+    63 00000061 [0000000000000000] 
+    64 00000069 4883EC08                    sub		rsp,8	
+    65 0000006D E8(00000000)                call    printMapa    
+    66 00000072 4883C408                	add		rsp,8	
+    67                                  
+    68 00000076 4883EC08                    sub rsp,8
+    69 0000007A E871000000                  call cerrarArchivo
+    70 0000007F 4883C408                    add rsp,8
+    71                                  
+    72                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    73                                  ; ABRO EL ARCHIVO PARA ESCRITURA
+    74                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    75 00000083 48BF-                       mov     rdi,fileMatriz   ;Param 1: string con nombre del archivo (finaliza con 0 binario!!)
+    75 00000085 [0000000000000000] 
+    76 0000008D 48BE-                       mov     rsi,modoEscritura 
+    76 0000008F [1100000000000000] 
+    77                                  
+    78 00000097 4883EC08                    sub     rsp,8
+    79 0000009B E8(00000000)                call    fopen
+    80 000000A0 4883C408                    add     rsp,8
+    81                                  
+    82 000000A4 4883F800                	cmp		rax,0
+    83 000000A8 7E5C                    	jle		errorAperturaArchivo
+    84 000000AA 48890425[32000000]      	mov     [idMapa],rax
+    85                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    86                                  ; SE GUARDA EL MAPA EN EL ARCHIVO 
+    87                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    88                                  
+    89                                      ;;Se guarda el mapa en el archivo 
+    90 000000B2 48BF-                       mov     rdi, matriz            ; Param 1: dirección de memoria con el registro a escribir
+    90 000000B4 [0000000000000000] 
+    91 000000BC BE32000000                  mov     rsi, 50       ; Param 2: tamaño del registro en bytes
+    92 000000C1 BA01000000                  mov     rdx, 1                  ; Param 3: cantidad de registros a escribir (1)
+    93 000000C6 488B0425[32000000]          mov     rax, [idMapa]    ; Obtener el handle del archivo (obtenido en fopen)
+    94                                  
+    95                                      ; Alinear la pila a 16 bytes antes de llamar a fwrite
+    96 000000CE 4883EC08                    sub     rsp, 8                  ; Espacio para alinear la pila
+    97 000000D2 4889C1                      mov     rcx, rax                ; Enviar el handle del archivo a rcx, aunque no se use en fwrite
+    98 000000D5 E8(00000000)                call    fwrite
+    99 000000DA 4883C408                    add     rsp, 8                  ; Restaurar la pila
+   100                                      
+   101                                  
+   102                                      
+   103                                  
+   104                                      ; Verificar el resultado de fwrite
+   105 000000DE 4883F801                    cmp     rax, 1                  ; Verificar si se escribió exactamente un registro
+   106                                  
+   107 000000E2 4883EC08                    sub rsp,8
+   108 000000E6 E805000000                  call cerrarArchivo
+   109 000000EB 4883C408                    add rsp,8
+   110                                  
+   111 000000EF C3                          ret
+   112                                  
+   113                                  
+   114                                      ;Cierro el archivo
+   115                                  cerrarArchivo:
+   116 000000F0 488B3C25[32000000]          mov     rdi,[idMapa]
+   117 000000F8 4883EC08                    sub     rsp,8
+   118 000000FC E8(00000000)                call    fclose
+   119 00000101 4883C408                    add     rsp,8
+   120 00000105 C3                          ret
+   121                                  
+   122                                  errorAperturaArchivo:
+   123                                      mPuts   msgErrOpenLis
+     4 00000106 48BF-               <1>  mov rdi,%1
+     4 00000108 [1500000000000000]  <1>
+     5 00000110 4883EC08            <1>  sub rsp,8
+     6 00000114 E8(00000000)        <1>  call puts
+     7 00000119 4883C408            <1>  add rsp,8
+   124 0000011D EB00                    	jmp		endProg
+   125                                  
+   126                                  endProg:
+   127 0000011F C3                      ret

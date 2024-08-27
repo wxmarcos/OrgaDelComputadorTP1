@@ -1,14 +1,6 @@
 global	printMapa
 extern	printf
 extern  puts
-extern  gets
-extern  sscanf
-
-%macro mGets 0 
-    sub     rsp,8
-    call    gets
-    add     rsp,8
-%endmacro
 
 %macro mPuts 0 
     sub     rsp,8
@@ -24,9 +16,17 @@ extern  sscanf
 
 
 section	.data
-    separador           db  "---------------------",10,0
-    char                db  "|%c|",0
-    charNum             db  "|%hhi| ",0    
+    columnas            db  " 🦊🌿🦢   ( 1 ) ( 2 ) ( 3 ) ( 4 ) ( 5 ) ( 6 ) ( 7 )",0 
+    separador           db  "       🌲------------------------------------------🌲",0
+    arboles             db  "       🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲🌲",10,0
+    separadorFilas      db  "🌲",10,"       🌲------------------------------------------🌲",10,0
+    
+
+    charPasto           db  "  🌿  ",0
+    charPiedra          db  " 🗿🗿 ",0 
+    charZorro           db  "  🦊  ",0
+    charOca             db  "  🦢  ",0
+    charNum             db  " ( %hhi ) 🌲",0    
     
     newline             db  10,0                               
     longFila            db  7                               
@@ -45,6 +45,14 @@ printMapa:
     mov     rcx,49
     rep     movsb
 
+
+    mov     rdi, columnas
+    mPuts
+    mov     rdi, arboles   
+    mPrintf  
+    mov     rdi, separador
+    mPuts
+    
     sub     rcx,rcx
     sub     rsi,rsi
     sub     rdi,rdi 
@@ -58,14 +66,28 @@ printMapa:
     sub     rsp,8
     call    imprimir
     add     rsp,8
+    mov     rdi, arboles   
+    mPrintf
 
     ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMPRIME MATRIZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-imprimir:           
+imprimir:      
+    
     xor     rcx,rcx                                              
-    mov     rdi,char
     mov     cx,[contador]
     mov     rsi,[matriz + rcx]              ;;; EL PROBLEMA DEL RCX ES QUE CUANDO LLAMAS A PRINTF COMO LO USA EN SUS PARAMETROS LO LLENA DE KK(ARREGLAR LUEGO)
+    
+    ;;Chequeo que elemento tiene la matriz para imprimir un mapa realista con emojis
+    cmp     byte[matriz + rcx],"#"
+    je      asignoCharPiedra
+    cmp     byte[matriz + rcx]," "
+    je      asignoCharPasto
+    cmp     byte[matriz + rcx],"X"
+    je      asignoCharZorro
+    cmp     byte[matriz + rcx],"O"
+    je      asignoCharOca
+
+seguirImprimiendo:
     mPrintf
     
     inc     byte[contador]
@@ -80,7 +102,7 @@ imprimir:
     jmp     imprimir
 
 nuevaLinea:
-    mov     rdi, newline   
+    mov     rdi, separadorFilas   
     mPrintf
 
     sub     rdi,rdi
@@ -96,7 +118,18 @@ continuar:
     cmp     byte[contador],49
     je      finLoop
     jmp     imprimir  
-
+asignoCharPiedra:
+    mov     rdi,charPiedra
+    jmp     seguirImprimiendo
+asignoCharPasto:
+    mov     rdi,charPasto
+    jmp     seguirImprimiendo
+asignoCharZorro:
+    mov     rdi,charZorro
+    jmp     seguirImprimiendo
+asignoCharOca:
+    mov     rdi,charOca   
+    jmp     seguirImprimiendo     
 finLoop:
     mov     byte[contador],0
     mov     byte[nFil],1
